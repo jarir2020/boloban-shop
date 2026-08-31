@@ -1,0 +1,1 @@
+- [OpenAPI integer compatibility](zod-openapi-integer.md) — generated Zod uses Zod 3; avoid specs that produce unsupported z.int().

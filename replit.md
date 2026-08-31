@@ -1,6 +1,6 @@
-# [Project name]
+# BazarHub Marketplace
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+BazarHub is a Bangladesh-focused multi-vendor ecommerce marketplace for discovering products, managing a cart, and placing delivery orders.
 
 ## Run & Operate
 
@@ -22,15 +22,20 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/bazarhub/src/` — React marketplace experience and shopper flows
+- `artifacts/api-server/src/routes/marketplace.ts` — catalog, reviews, deals, and order API
+- `lib/api-spec/openapi.yaml` — source-of-truth API contract
+- `lib/db/src/schema/marketplace.ts` — PostgreSQL marketplace schema and models
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- The web app uses the shared API server through `/api`; the frontend should not add a Vite proxy or hardcoded localhost URL.
+- Catalog seed data is inserted lazily on the first marketplace API request so a fresh development database is immediately usable.
+- Cart state is intentionally persisted in browser storage for the shopper experience; orders are persisted in PostgreSQL.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Users can browse categories and deals, search and sort products, view product details and reviews, save items to a persistent cart, check out with cash-on-delivery/bKash/Nagad selections, and view recent orders. Seller and admin surfaces are included as foundations for future role-specific operations.
 
 ## User preferences
 
@@ -38,7 +43,8 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- After changing `lib/api-spec/openapi.yaml`, run `pnpm --filter @workspace/api-spec run codegen` before changing API consumers.
+- Database schema changes require `pnpm --filter @workspace/db run push` in development.
 
 ## Pointers
 

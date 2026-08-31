@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "BazarHub Marketplace"
+description = "A Bangladesh-focused multi-vendor ecommerce marketplace inspired by the best parts of large shopping platforms, with product discovery, categories, cart, checkout, orders, and seller-ready foundations."
+version = "1.0.0"
+id = "artifacts/bazarhub"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21000
+
+[services.development]
+run = "pnpm --filter @workspace/bazarhub run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/bazarhub", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/bazarhub/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21000"
+BASE_PATH = "/"
