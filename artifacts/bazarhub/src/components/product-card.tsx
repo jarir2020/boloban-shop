@@ -22,11 +22,18 @@ export function ProductCard({ product, featured = false }: { product: Product; f
   return (
     <article className={`group relative overflow-hidden rounded-2xl border border-border bg-card soft-shadow lift ${featured ? 'md:rounded-3xl' : ''}`} data-testid={`card-product-${product.id}`}>
       <div className="relative aspect-square overflow-hidden bg-[hsl(40_28%_90%)]">
-        {imageFailed ? (
-          <div className="flex h-full items-center justify-center bg-[hsl(178_31%_24%)] px-8 text-center font-display text-3xl text-primary">{product.name.slice(0, 1)}</div>
-        ) : (
-          <img src={product.image} alt={product.name} onError={() => setImageFailed(true)} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-testid={`img-product-${product.id}`} />
-        )}
+        <Link
+          href={`/products/${product.id}`}
+          className="block h-full w-full"
+          aria-label={`View ${product.name}`}
+          data-testid={`link-product-image-${product.id}`}
+        >
+          {imageFailed ? (
+            <div className="flex h-full items-center justify-center bg-[hsl(178_31%_24%)] px-8 text-center font-display text-3xl text-primary">{product.name.slice(0, 1)}</div>
+          ) : (
+            <img src={product.image} alt={product.name} onError={() => setImageFailed(true)} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" data-testid={`img-product-${product.id}`} />
+          )}
+        </Link>
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           {product.badge && <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">{product.badge}</span>}
           {product.discount > 0 && <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">-{product.discount}%</span>}

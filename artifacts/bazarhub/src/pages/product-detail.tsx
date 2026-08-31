@@ -1,10 +1,10 @@
-import { ArrowLeft, Check, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, Check, ChevronRight, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'wouter';
-import { getGetProductQueryKey, getListProductReviewsQueryKey, useGetProduct, useListProductReviews } from '@workspace/api-client-react';
+import { getGetProductQueryKey, getListProductReviewsQueryKey, getListProductsQueryKey, useGetProduct, useListProductReviews, useListProducts } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
-import { taka } from '@/components/product-card';
-import { ErrorState } from '@/components/page-states';
+import { ProductCard, taka } from '@/components/product-card';
+import { ErrorState, ProductSkeletons } from '@/components/page-states';
 import { toast } from '@/hooks/use-toast';
 
 export default function ProductDetail() {
@@ -12,10 +12,19 @@ export default function ProductDetail() {
   const id = Number(params.id);
   const productQuery = useGetProduct(id, { query: { enabled: Number.isFinite(id), queryKey: getGetProductQueryKey(id) } });
   const reviewsQuery = useListProductReviews(id, { query: { enabled: Number.isFinite(id), queryKey: getListProductReviewsQueryKey(id) } });
+  const relatedParams = { category: productQuery.data?.category, limit: 50, sort: 'popular' as const };
+  const relatedQuery = useListProducts(
+    relatedParams,
+    { query: { enabled: Boolean(productQuery.data?.category), queryKey: getListProductsQueryKey(relatedParams) } },
+  );
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [favorite, setFavorite] = useState(false);
   const product = productQuery.data;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [id]);
 
   if (productQuery.isLoading) return <div className="mx-auto max-w-[1100px] px-4 py-12"><div className="grid gap-8 md:grid-cols-2"><div className="aspect-square animate-pulse rounded-3xl bg-muted" /><div className="space-y-5"><div className="h-5 w-32 animate-pulse rounded bg-muted" /><div className="h-14 w-3/4 animate-pulse rounded bg-muted" /><div className="h-32 animate-pulse rounded bg-muted" /></div></div></div>;
   if (productQuery.isError || !product) return <div className="mx-auto max-w-[900px] px-4 py-12"><ErrorState onRetry={() => productQuery.refetch()} title="Could not find that product" /></div>;
@@ -38,6 +47,29 @@ export default function ProductDetail() {
         </div>
       </div>
       <section className="mt-16 border-t border-border pt-10"><div className="mb-6 flex items-baseline justify-between"><div><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-accent">From the community</p><h2 className="mt-1 font-display text-3xl text-secondary">Kind words</h2></div><span className="text-sm text-muted-foreground">{reviewsQuery.data?.length ?? 0} reviews</span></div>{reviewsQuery.isLoading ? <div className="grid gap-3 md:grid-cols-3"><div className="h-36 animate-pulse rounded-2xl bg-muted" /><div className="h-36 animate-pulse rounded-2xl bg-muted" /><div className="h-36 animate-pulse rounded-2xl bg-muted" /></div> : reviewsQuery.isError ? <ErrorState onRetry={() => reviewsQuery.refetch()} title="Reviews are taking a pause" /> : reviewsQuery.data?.length ? <div className="grid gap-3 md:grid-cols-3">{reviewsQuery.data.map((review) => <article key={review.id} className="rounded-2xl border border-border bg-card p-5" data-testid={`card-review-${review.id}`}><div className="flex items-center justify-between"><span className="font-bold text-secondary">{review.author}</span><span className="flex items-center gap-1 text-xs font-bold"><Star size={13} className="fill-primary text-primary" /> {review.rating}</span></div><p className="mt-3 text-sm leading-6 text-muted-foreground">“{review.text}”</p><p className="mt-4 font-mono-brand text-[10px] uppercase tracking-wider text-muted-foreground">{review.date}</p></article>)}</div> : <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">Be the first to leave a kind word.</p>}</section>
+      <section className="mt-16 border-t border-border pt-10" data-testid="section-related-products">
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-accent">Keep browsing</p>
+            <h2 className="mt-1 font-display text-3xl text-secondary">More from {product.category}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Explore more products in this category.</p>
+          </div>
+          <Link href={`/products?category=${encodeURIComponent(product.category)}`} className="hidden items-center gap-1 text-sm font-bold text-accent sm:flex" data-testid="link-related-see-all">
+            See all <ChevronRight size={16} />
+          </Link>
+        </div>
+        {relatedQuery.isLoading ? (
+          <ProductSkeletons count={4} />
+        ) : relatedQuery.isError ? (
+          <ErrorState onRetry={() => relatedQuery.refetch()} title="Related products are taking a pause" />
+        ) : relatedQuery.data?.filter((item) => item.id !== product.id).length ? (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
+            {relatedQuery.data.filter((item) => item.id !== product.id).map((item) => <ProductCard key={item.id} product={item} />)}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No other products in this category yet.</p>
+        )}
+      </section>
     </div>
   );
 }
