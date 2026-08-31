@@ -1,8 +1,27 @@
-import { ArrowRight, ChevronRight, CircleCheck, Clock3, MapPin, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  ArrowRight,
+  ChevronRight,
+  Clock3,
+  Grid2X2,
+  MapPin,
+  ShieldCheck,
+  ShoppingBag,
+  Sparkles,
+  Truck,
+  UserRound,
+} from 'lucide-react';
 import { Link } from 'wouter';
-import { useListCategories, useListDeals, useListProducts } from '@workspace/api-client-react';
+import {
+  useListCategories,
+  useListDeals,
+  useListProducts,
+} from '@workspace/api-client-react';
 import { ProductCard } from '@/components/product-card';
 import { ErrorState, ProductSkeletons } from '@/components/page-states';
+
+function categoryHref(category: { id: string; name: string }) {
+  return `/products?category=${encodeURIComponent(category.id)}`;
+}
 
 export default function Home() {
   const categoriesQuery = useListCategories();
@@ -11,67 +30,238 @@ export default function Home() {
   const categories = categoriesQuery.data ?? [];
   const deals = dealsQuery.data ?? [];
   const products = productsQuery.data ?? [];
+  const heroProduct = deals[0];
+  const secondaryHeroProduct = deals[1];
 
   return (
-    <div>
-      <section className="hero-burst overflow-hidden border-b border-border">
-        <div className="mx-auto grid max-w-[1440px] items-center gap-10 px-4 py-12 md:grid-cols-[1.08fr_.92fr] md:px-8 md:py-20 lg:py-24">
-          <div className="fade-up">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-bold text-accent"><Sparkles size={14} /> Your corner of the internet, but warmer</div>
-            <h1 className="max-w-2xl font-display text-[clamp(3.2rem,8vw,7rem)] leading-[.9] tracking-[-.055em] text-secondary">Small joys.<br /><span className="text-accent">Big bazar</span><br />energy.</h1>
-            <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground md:text-lg">From pantry staples to self-care rituals, find good things from trusted sellers across Bangladesh.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/products" className="inline-flex items-center gap-2 rounded-xl bg-secondary px-5 py-3.5 text-sm font-bold text-secondary-foreground shadow-lg transition-transform hover:-translate-y-1" data-testid="link-hero-shop">Start browsing <ArrowRight size={17} /></Link>
-              <Link href="/products?sort=popular" className="inline-flex items-center gap-2 rounded-xl border border-secondary/25 bg-card/50 px-5 py-3.5 text-sm font-bold text-secondary transition-colors hover:border-primary hover:bg-primary/15" data-testid="link-hero-popular">See what is popular</Link>
-            </div>
-            <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-xs font-bold text-muted-foreground"><span className="inline-flex items-center gap-2"><ShieldCheck size={16} className="text-[hsl(151_35%_48%)]" /> Verified sellers</span><span className="inline-flex items-center gap-2"><MapPin size={16} className="text-accent" /> Nationwide delivery</span><span className="inline-flex items-center gap-2"><CircleCheck size={16} className="text-primary" /> Easy returns</span></div>
+    <div className="bg-[#f6f6f6]">
+      <section className="border-b border-[#e7e7e7] bg-[#fff3e8]" style={{ backgroundColor: '#fff3e8' }}>
+        <div className="mx-auto max-w-[1440px] px-4 py-3 md:px-8">
+          <div className="flex items-center justify-between text-xs text-[#555]">
+            <span className="hidden items-center gap-1.5 sm:inline-flex">
+              <MapPin size={14} className="text-[#f57224]" /> Deliver to Bangladesh
+            </span>
+            <span className="mx-auto font-bold text-[#f57224] sm:mx-0">
+              Big savings, everyday prices
+            </span>
+            <span className="hidden items-center gap-1.5 sm:inline-flex">
+              <ShieldCheck size={14} className="text-[#f57224]" /> Buyer protection
+            </span>
           </div>
-          <div className="relative mx-auto w-full max-w-[540px] md:justify-self-end">
-            <div className="absolute -right-4 -top-7 hidden rotate-6 rounded-xl bg-primary px-4 py-3 font-mono-brand text-xs font-bold text-primary-foreground shadow-lg sm:block">TODAY'S<br />GOOD STUFF</div>
-            <div className="relative overflow-hidden rounded-[2.5rem] border-8 border-card bg-[hsl(178_31%_24%)] p-5 shadow-2xl md:p-7">
-              <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full border-[28px] border-primary/30" />
-              <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accent/50 blur-2xl" />
-              <div className="relative">
-                <p className="font-mono-brand text-xs tracking-widest text-primary">THE BAZARHUB EDIT</p>
-                <h2 className="mt-4 max-w-xs font-display text-4xl leading-[.98] text-card">Things worth<br />bringing home.</h2>
-                <div className="mt-8 grid grid-cols-2 gap-3">
-                  <div className="aspect-[.82] overflow-hidden rounded-2xl bg-[hsl(35_92%_57%)] p-3"><div className="flex h-full flex-col justify-between"><span className="font-mono-brand text-4xl font-bold text-secondary/50">01</span><p className="font-bold leading-4 text-secondary">Kitchen<br />comforts</p></div></div>
-                  <div className="mt-8 aspect-[.82] overflow-hidden rounded-2xl bg-[hsl(11_69%_62%)] p-3"><div className="flex h-full flex-col justify-between"><span className="font-mono-brand text-4xl font-bold text-card/60">02</span><p className="font-bold leading-4 text-card">Little<br />luxuries</p></div></div>
-                </div>
-                <div className="mt-5 flex items-center justify-between rounded-xl bg-card/10 px-3 py-3 text-xs text-card"><span>Picked in Dhaka, delivered everywhere</span><ArrowRight size={15} className="text-primary" /></div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1440px] px-4 py-4 md:px-8 md:py-6">
+        <div className="grid gap-3 lg:grid-cols-[240px_minmax(0,1fr)_250px]">
+          <aside className="hidden rounded-sm bg-white p-4 shadow-sm lg:block">
+            <div className="mb-3 flex items-center gap-2 border-b border-[#eeeeee] pb-3 text-sm font-bold text-[#333]">
+              <Grid2X2 size={17} className="text-[#f57224]" /> Categories
+            </div>
+            {categoriesQuery.isLoading ? (
+              <div className="space-y-4">
+                <div className="h-4 animate-pulse rounded bg-muted" />
+                <div className="h-4 animate-pulse rounded bg-muted" />
+                <div className="h-4 animate-pulse rounded bg-muted" />
               </div>
+            ) : categoriesQuery.isError ? (
+              <ErrorState onRetry={() => categoriesQuery.refetch()} title="Categories unavailable" />
+            ) : (
+              <div className="space-y-1">
+                {categories.slice(0, 8).map((category) => (
+                  <Link
+                    key={category.id}
+                    href={categoryHref(category)}
+                    className="group flex items-center justify-between rounded px-2 py-2.5 text-sm text-[#555] transition-colors hover:bg-[#fff3e8] hover:text-[#f57224]"
+                    data-testid={`link-home-category-${category.id}`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#fff3e8] text-[#f57224] transition-transform group-hover:scale-110">
+                        {category.icon}
+                      </span>
+                      {category.name}
+                    </span>
+                    <ChevronRight size={14} className="text-[#aaa]" />
+                  </Link>
+                ))}
+              </div>
+            )}
+            <Link
+              href="/products"
+              className="mt-3 flex items-center justify-between border-t border-[#eeeeee] pt-3 text-sm font-bold text-[#f57224]"
+              data-testid="link-home-all-categories"
+            >
+              View all categories <ArrowRight size={15} />
+            </Link>
+          </aside>
+
+          <div className="relative min-h-[300px] overflow-hidden rounded-sm bg-[#f57224] px-6 py-8 text-white shadow-sm md:px-10 md:py-10" style={{ backgroundColor: '#f57224' }}>
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full border-[32px] border-white/15" />
+            <div className="absolute -bottom-36 right-24 h-80 w-80 rounded-full bg-[#ff9a42]/60 blur-3xl" />
+            <div className="relative z-10 max-w-[470px]">
+              <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[.2em] text-white/80">
+                <Sparkles size={14} /> BOLOBAN SHOP
+              </p>
+              <h1 className="max-w-xl text-4xl font-black leading-[1.02] tracking-tight md:text-6xl">
+                Shop more.
+                <br />
+                Pay less.
+              </h1>
+              <p className="mt-4 max-w-md text-sm leading-6 text-white/85 md:text-base">
+                Deals from trusted sellers, delivered anywhere in Bangladesh.
+                Find your next favorite thing today.
+              </p>
+              <Link
+                href="/products"
+                className="mt-7 inline-flex items-center gap-2 rounded-sm bg-white px-5 py-3 text-sm font-bold text-[#f57224] shadow-md transition-transform hover:-translate-y-0.5"
+                data-testid="link-home-shop-now"
+              >
+                Shop now <ArrowRight size={17} />
+              </Link>
+            </div>
+            <div className="absolute bottom-4 right-5 hidden items-end gap-3 sm:flex">
+              {[heroProduct, secondaryHeroProduct].filter(Boolean).map((product, index) => (
+                <Link
+                  key={product!.id}
+                  href={`/products/${product!.id}`}
+                  className={`relative h-36 w-28 overflow-hidden rounded bg-white/95 p-2 shadow-xl transition-transform hover:-translate-y-2 ${index === 1 ? 'mb-8' : ''}`}
+                  data-testid={`link-home-hero-product-${product!.id}`}
+                >
+                  <img src={product!.image} alt={product!.name} className="h-24 w-full object-cover" />
+                  <p className="truncate text-[10px] font-bold text-[#333]">{product!.name}</p>
+                  <p className="text-xs font-black text-[#f57224]">৳{product!.price.toLocaleString()}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+            <div className="rounded-sm bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#333]">
+                <UserRound size={18} className="text-[#f57224]" /> Welcome to SHOP
+              </div>
+              <p className="mt-2 text-xs leading-5 text-[#777]">
+                Sign in for a faster checkout and order tracking.
+              </p>
+              <button
+                onClick={() => window.alert('Account sign-in is coming soon. You can shop without an account.')}
+                className="mt-3 w-full rounded-sm bg-[#f57224] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#d95f16]"
+                style={{ backgroundColor: '#f57224' }}
+                data-testid="button-home-sign-in"
+              >
+                Sign in / Register
+              </button>
+            </div>
+            <div className="rounded-sm bg-[#fff3e8] p-4 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#333]">
+                <Truck size={18} className="text-[#f57224]" /> Free delivery
+              </div>
+              <p className="mt-2 text-xs leading-5 text-[#777]">
+                Enjoy delivery savings on selected orders across Bangladesh.
+              </p>
+              <Link href="/products" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#f57224]">
+                Explore offers <ChevronRight size={14} />
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-4 py-10 md:px-8 md:py-14">
-        <div className="mb-5 flex items-end justify-between"><div><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-accent">Browse by mood</p><h2 className="mt-1 font-display text-3xl text-secondary md:text-4xl">What are you after?</h2></div><Link href="/products" className="hidden items-center gap-1 text-sm font-bold text-accent sm:flex" data-testid="link-all-categories">All categories <ChevronRight size={16} /></Link></div>
-        {categoriesQuery.isLoading ? <div className="flex gap-3 overflow-hidden"><div className="h-24 w-40 animate-pulse rounded-2xl bg-muted" /><div className="h-24 w-40 animate-pulse rounded-2xl bg-muted" /><div className="h-24 w-40 animate-pulse rounded-2xl bg-muted" /></div> : categoriesQuery.isError ? <ErrorState onRetry={() => categoriesQuery.refetch()} title="Categories wandered off" /> : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {categories.map((category, index) => <Link href={`/products?category=${encodeURIComponent(category.name)}`} key={category.id} className={`group flex min-h-[118px] flex-col justify-between rounded-2xl border border-border p-4 transition-transform hover:-translate-y-1 ${index % 3 === 0 ? 'bg-[hsl(35_92%_57%)]' : index % 3 === 1 ? 'bg-[hsl(11_69%_62%)]' : 'bg-secondary text-secondary-foreground'}`} data-testid={`link-category-${category.id}`}><span className="font-mono-brand text-2xl font-bold opacity-55 transition-transform group-hover:scale-110">0{index + 1}</span><span><span className="block text-sm font-bold">{category.name}</span><span className="mt-0.5 block text-[11px] opacity-70">{category.nameBn} · {category.count} items</span></span></Link>)}
+      <section className="mx-auto max-w-[1440px] px-4 pb-6 md:px-8">
+        <div className="flex items-center justify-between bg-white px-4 py-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#fff3e8] text-[#f57224]">
+              <Clock3 size={18} />
+            </span>
+            <div>
+              <h2 className="text-lg font-black text-[#333]">Flash Sale</h2>
+              <p className="text-xs text-[#888]">Limited time deals</p>
+            </div>
+            <div className="ml-2 hidden items-center gap-1 text-sm font-black text-white sm:flex">
+              <span className="rounded bg-[#333] px-2 py-1">10</span>
+              <span className="text-[#333]">:</span>
+              <span className="rounded bg-[#333] px-2 py-1">24</span>
+              <span className="text-[#333]">:</span>
+              <span className="rounded bg-[#333] px-2 py-1">18</span>
+            </div>
+          </div>
+          <Link href="/products?sort=price_asc" className="flex items-center gap-1 text-sm font-bold text-[#f57224]" data-testid="link-home-flash-sale">
+            See more <ChevronRight size={16} />
+          </Link>
+        </div>
+        {dealsQuery.isLoading ? (
+          <div className="bg-white p-4">
+            <ProductSkeletons count={4} />
+          </div>
+        ) : dealsQuery.isError ? (
+          <div className="bg-white p-4"><ErrorState onRetry={() => dealsQuery.refetch()} /></div>
+        ) : (
+          <div className="grid grid-cols-2 gap-px bg-[#eeeeee] md:grid-cols-4">
+            {deals.slice(0, 4).map((product) => (
+              <div key={product.id} className="bg-white p-3 md:p-4">
+                <ProductCard product={product} />
+              </div>
+            ))}
           </div>
         )}
       </section>
 
-      <section className="bg-[hsl(178_31%_24%)] text-card">
-        <div className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 md:py-16">
-          <div className="mb-7 flex items-end justify-between"><div><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-primary">Drops & steals</p><h2 className="mt-1 font-display text-3xl md:text-4xl">Good deals, no funny business.</h2></div><Link href="/products?sort=price_asc" className="hidden items-center gap-1 text-sm font-bold text-primary sm:flex" data-testid="link-deals">See all deals <ChevronRight size={16} /></Link></div>
-          {dealsQuery.isLoading ? <ProductSkeletons count={4} /> : dealsQuery.isError ? <ErrorState onRetry={() => dealsQuery.refetch()} /> : deals.length ? <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">{deals.slice(0, 4).map((product) => <ProductCard key={product.id} product={product} />)}</div> : <p className="rounded-2xl border border-card/20 p-8 text-center text-sm text-card/70">New deals are being unpacked. Check back soon.</p>}
+      <section className="mx-auto max-w-[1440px] px-4 pb-6 md:px-8">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-xl font-black text-[#333]">Categories</h2>
+          <Link href="/products" className="flex items-center gap-1 text-sm font-bold text-[#f57224]" data-testid="link-home-categories-see-more">
+            See all <ChevronRight size={16} />
+          </Link>
         </div>
+        {categoriesQuery.isLoading ? (
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, index) => <div key={index} className="h-28 animate-pulse bg-white" />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
+            {categories.map((category, index) => (
+              <Link
+                key={category.id}
+                href={categoryHref(category)}
+                className="group flex min-h-28 flex-col items-center justify-center gap-2 bg-white p-3 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+                data-testid={`link-home-category-card-${category.id}`}
+              >
+                <span className={`flex h-12 w-12 items-center justify-center rounded-full text-xl ${index % 3 === 0 ? 'bg-[#fff3e8] text-[#f57224]' : index % 3 === 1 ? 'bg-[#fff0f0] text-[#e94b4b]' : 'bg-[#eaf8f5] text-[#238b77]'}`}>
+                  {category.icon}
+                </span>
+                <span className="text-xs font-bold text-[#444] group-hover:text-[#f57224]">{category.name}</span>
+                <span className="text-[10px] text-[#999]">{category.count} items</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-4 py-12 md:px-8 md:py-16">
-        <div className="mb-7 flex items-end justify-between"><div><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-accent">The neighbourhood shelf</p><h2 className="mt-1 font-display text-3xl text-secondary md:text-4xl">Popular right now</h2></div><Link href="/products" className="hidden items-center gap-1 text-sm font-bold text-accent sm:flex" data-testid="link-popular">Browse everything <ChevronRight size={16} /></Link></div>
-        {productsQuery.isLoading ? <ProductSkeletons count={8} /> : productsQuery.isError ? <ErrorState onRetry={() => productsQuery.refetch()} /> : products.length ? <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">{products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : <p className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">The shelves are quiet for now.</p>}
+      <section className="mx-auto max-w-[1440px] px-4 pb-16 md:px-8">
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#f57224]">For you</p>
+            <h2 className="text-xl font-black text-[#333]">Recommended for you</h2>
+          </div>
+          <Link href="/products" className="flex items-center gap-1 text-sm font-bold text-[#f57224]" data-testid="link-home-recommended-see-more">
+            See all <ChevronRight size={16} />
+          </Link>
+        </div>
+        {productsQuery.isLoading ? (
+          <ProductSkeletons count={8} />
+        ) : productsQuery.isError ? (
+          <ErrorState onRetry={() => productsQuery.refetch()} />
+        ) : products.length ? (
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            {products.map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
+        ) : (
+          <p className="bg-white p-10 text-center text-sm text-[#777]">Products are being unpacked. Check back soon.</p>
+        )}
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-4 pb-14 md:px-8">
-        <div className="grid overflow-hidden rounded-3xl bg-primary md:grid-cols-[1fr_auto]">
-          <div className="p-7 md:p-12"><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-secondary/70">Why BOLOBAN SHOP</p><h2 className="mt-3 max-w-xl font-display text-4xl leading-tight text-secondary md:text-5xl">Shopping that feels a little more human.</h2><p className="mt-4 max-w-lg text-sm leading-6 text-secondary/75">We make room for the people behind the products — small sellers, big care, and a market you can trust.</p></div>
-          <div className="flex min-w-[270px] flex-col justify-center gap-4 bg-secondary p-7 text-secondary-foreground md:p-10"><div className="flex items-center gap-3"><ShieldCheck className="text-primary" /><span className="text-sm font-bold">Seller checks, always</span></div><div className="flex items-center gap-3"><Clock3 className="text-primary" /><span className="text-sm font-bold">Reliable delivery updates</span></div><div className="flex items-center gap-3"><CircleCheck className="text-primary" /><span className="text-sm font-bold">No-stress returns</span></div></div>
-        </div>
-      </section>
+      <div className="mx-auto flex max-w-[1440px] items-center justify-center gap-2 px-4 pb-10 text-xs text-[#777] md:px-8">
+        <ShoppingBag size={15} className="text-[#f57224]" /> Shop confidently with BOLOBAN SHOP
+      </div>
     </div>
   );
 }
