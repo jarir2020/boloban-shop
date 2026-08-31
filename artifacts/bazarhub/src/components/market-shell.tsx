@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Bell, ChevronDown, Heart, Menu, Search, ShoppingBag, Store, X } from 'lucide-react';
+import { Bell, Heart, Menu, Search, ShoppingBag, Store, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
@@ -25,6 +25,9 @@ export function MarketShell({ children }: { children: ReactNode }) {
     setMenuOpen(false);
     setLocation(`/products${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
   };
+
+  const showLogin = () => toast({ title: 'Login', description: 'Account sign-in is coming soon. You can shop without an account.' });
+  const showRegister = () => toast({ title: 'Register', description: 'Registration is coming soon. You can start shopping right away.' });
 
   return (
     <div className="paper-grain min-h-[100dvh] bg-background text-foreground">
@@ -52,7 +55,8 @@ export function MarketShell({ children }: { children: ReactNode }) {
               <ShoppingBag size={20} />
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
-            <button onClick={() => toast({ title: 'Welcome back', description: 'Account sign-in is coming soon. You can shop without an account.' })} className="hidden items-center gap-1 rounded-xl border border-primary-foreground/30 px-3 py-2 text-sm font-bold text-primary-foreground transition-colors hover:border-secondary hover:bg-secondary/10 md:flex" data-testid="button-account"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-xs text-secondary-foreground">A</span> Account <ChevronDown size={14} /></button>
+            <button onClick={showLogin} className="hidden rounded-lg px-2 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:inline-flex" data-testid="button-login">Login</button>
+            <button onClick={showRegister} className="hidden rounded-lg bg-secondary px-3 py-2 text-sm font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:inline-flex" data-testid="button-register">Register</button>
             <button onClick={() => setMenuOpen((value) => !value)} className="rounded-xl p-2.5 text-primary-foreground hover:bg-secondary/15 lg:hidden" aria-label="Toggle menu" data-testid="button-menu">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
           </div>
         </div>
@@ -60,6 +64,10 @@ export function MarketShell({ children }: { children: ReactNode }) {
           <div className="mx-auto flex max-w-[1440px] flex-col gap-1">
             {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-bold hover:bg-primary/15" data-testid={`link-mobile-${link.label.toLowerCase().replaceAll(' ', '-')}`}>{link.label}</Link>)}
             <Link href="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-bold hover:bg-primary/15" data-testid="link-mobile-sell"><Store size={16} /> Sell on BOLOBAN SHOP</Link>
+            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
+              <button onClick={() => { showLogin(); setMenuOpen(false); }} className="rounded-lg border border-primary px-3 py-3 text-sm font-bold text-primary" data-testid="button-mobile-login">Login</button>
+              <button onClick={() => { showRegister(); setMenuOpen(false); }} className="rounded-lg bg-secondary px-3 py-3 text-sm font-bold text-secondary-foreground" data-testid="button-mobile-register">Register</button>
+            </div>
           </div>
         </div>}
         <div className="hidden border-t border-primary-foreground/20 bg-secondary/95 md:block">
