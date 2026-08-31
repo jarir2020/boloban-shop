@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Bell, Heart, Home, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound, X } from 'lucide-react';
+import { Bell, Heart, Home, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
@@ -17,12 +17,10 @@ export function MarketShell({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
   const { count } = useCart();
   const { data: health } = useHealthCheck();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
 
   const search = (event: FormEvent) => {
     event.preventDefault();
-    setMenuOpen(false);
     setLocation(`/products${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
   };
 
@@ -51,25 +49,14 @@ export function MarketShell({ children }: { children: ReactNode }) {
           <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
             <button onClick={() => toast({ title: 'Your favorites', description: 'Favorite products will appear here as you save them.' })} className="hidden rounded-xl p-2.5 text-primary-foreground transition-colors hover:bg-secondary/15 sm:block" aria-label="Favorites" data-testid="button-favorites"><Heart size={19} /></button>
             <button onClick={() => toast({ title: 'You are all caught up', description: 'No new market updates right now.' })} className="hidden rounded-xl p-2.5 text-primary-foreground transition-colors hover:bg-secondary/15 sm:block" aria-label="Notifications" data-testid="button-notifications"><Bell size={19} /></button>
-            <Link href="/cart" className="relative rounded-xl p-2.5 text-primary-foreground transition-colors hover:bg-secondary/15" aria-label={`Cart with ${count} items`} data-testid="link-cart">
+            <Link href="/cart" className="relative hidden rounded-xl p-2.5 text-primary-foreground transition-colors hover:bg-secondary/15 sm:block" aria-label={`Cart with ${count} items`} data-testid="link-cart">
               <ShoppingBag size={20} />
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
-            <button onClick={showLogin} className="hidden rounded-lg px-2 py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:inline-flex" data-testid="button-login">Login</button>
-            <button onClick={showRegister} className="hidden rounded-lg bg-secondary px-3 py-2 text-sm font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:inline-flex" data-testid="button-register">Register</button>
-            <button onClick={() => setMenuOpen((value) => !value)} className="rounded-xl p-2.5 text-primary-foreground hover:bg-secondary/15 lg:hidden" aria-label="Toggle menu" data-testid="button-menu">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
+            <button onClick={showLogin} className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</button>
+            <button onClick={showRegister} className="inline-flex rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-register">Register</button>
           </div>
         </div>
-        {menuOpen && <div className="border-t border-border bg-card px-4 py-3 lg:hidden">
-          <div className="mx-auto flex max-w-[1440px] flex-col gap-1">
-            {links.map((link) => <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-3 text-sm font-bold hover:bg-primary/15" data-testid={`link-mobile-${link.label.toLowerCase().replaceAll(' ', '-')}`}>{link.label}</Link>)}
-            <Link href="/seller" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-lg px-3 py-3 text-sm font-bold hover:bg-primary/15" data-testid="link-mobile-sell"><Store size={16} /> Sell on BOLOBAN SHOP</Link>
-            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
-              <button onClick={() => { showLogin(); setMenuOpen(false); }} className="rounded-lg border border-primary px-3 py-3 text-sm font-bold text-primary" data-testid="button-mobile-login">Login</button>
-              <button onClick={() => { showRegister(); setMenuOpen(false); }} className="rounded-lg bg-secondary px-3 py-3 text-sm font-bold text-secondary-foreground" data-testid="button-mobile-register">Register</button>
-            </div>
-          </div>
-        </div>}
         <div className="hidden border-t border-primary-foreground/20 bg-secondary/95 md:block">
           <div className="mx-auto flex max-w-[1440px] items-center gap-6 overflow-x-auto px-4 py-2 text-xs font-bold text-secondary-foreground md:px-8">
             <Link href="/products" className="inline-flex shrink-0 items-center gap-2 hover:text-primary"><Menu size={14} /> All Categories</Link>
