@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { Bell, Heart, Menu, Search, ShoppingBag, Store, X } from 'lucide-react';
+import { Bell, Heart, Home, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound, X } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
@@ -82,7 +82,35 @@ export function MarketShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       {health?.status && <div className="mx-auto hidden max-w-[1440px] items-center justify-end gap-1.5 px-8 pt-3 text-[10px] font-mono-brand uppercase tracking-wider text-muted-foreground md:flex"><span className="h-1.5 w-1.5 rounded-full bg-[hsl(151_35%_48%)]" /> Market live</div>}
-      <main>{children}</main>
+      <main className="pb-20 md:pb-0">{children}</main>
+      <nav className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-card/95 px-2 shadow-[0_-8px_24px_-18px_hsl(var(--foreground)/.45)] backdrop-blur md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} aria-label="Mobile navigation">
+        <div className="mx-auto grid h-[68px] max-w-lg grid-cols-5 items-end">
+          <Link href="/" className={`flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`} data-testid="mobile-nav-for-you">
+            <Home size={20} />
+            <span>For You</span>
+          </Link>
+          <button onClick={() => toast({ title: 'Messages', description: 'Your seller messages will appear here.' })} className="relative flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-messages">
+            <MessageCircle size={21} />
+            <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1.5 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">14</span>
+            <span>Messages</span>
+          </button>
+          <Link href="/products?category=groceries" className="group flex flex-col items-center justify-end gap-1 text-primary" data-testid="mobile-nav-fresh-market">
+            <span className="-mt-7 flex h-16 w-16 items-center justify-center rounded-full border-4 border-card bg-primary shadow-lg transition-transform group-hover:-translate-y-1">
+              <ShoppingBasket size={28} className="text-primary-foreground" />
+            </span>
+            <span className="pb-2 text-xs font-black">কাঁচা বাজার</span>
+          </Link>
+          <Link href="/cart" className="relative flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-cart">
+            <ShoppingBag size={21} />
+            {count > 0 && <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">{count > 99 ? '99+' : count}</span>}
+            <span>Cart</span>
+          </Link>
+          <button onClick={showLogin} className="flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-account">
+            <UserRound size={21} />
+            <span>Account</span>
+          </button>
+        </div>
+      </nav>
       <footer className="mt-20 bg-secondary text-secondary-foreground">
         <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-12 md:grid-cols-[1.4fr_1fr_1fr_1.2fr] md:px-8">
           <div><div className="flex items-center gap-2"><img src={logoImage} alt="BOLOBAN SHOP" className="h-9 w-9 rounded-lg object-cover" /><span className="font-display text-xl">BOLOBAN SHOP</span></div><p className="mt-4 max-w-xs text-sm leading-6 text-secondary-foreground/70">The everyday marketplace for great finds, trusted sellers, and easy delivery.</p></div>
