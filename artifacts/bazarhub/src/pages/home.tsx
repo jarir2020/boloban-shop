@@ -68,7 +68,7 @@ export default function Home() {
 
       <section className="mx-auto max-w-[1440px] px-4 pb-14 md:px-8">
         <div className="grid overflow-hidden rounded-3xl bg-primary md:grid-cols-[1fr_auto]">
-          <div className="p-7 md:p-12"><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-secondary/70">Why BazarHub</p><h2 className="mt-3 max-w-xl font-display text-4xl leading-tight text-secondary md:text-5xl">Shopping that feels a little more human.</h2><p className="mt-4 max-w-lg text-sm leading-6 text-secondary/75">We make room for the people behind the products — small sellers, big care, and a market you can trust.</p></div>
+          <div className="p-7 md:p-12"><p className="font-mono-brand text-[11px] font-bold uppercase tracking-[.2em] text-secondary/70">Why BOLOBAN SHOP</p><h2 className="mt-3 max-w-xl font-display text-4xl leading-tight text-secondary md:text-5xl">Shopping that feels a little more human.</h2><p className="mt-4 max-w-lg text-sm leading-6 text-secondary/75">We make room for the people behind the products — small sellers, big care, and a market you can trust.</p></div>
           <div className="flex min-w-[270px] flex-col justify-center gap-4 bg-secondary p-7 text-secondary-foreground md:p-10"><div className="flex items-center gap-3"><ShieldCheck className="text-primary" /><span className="text-sm font-bold">Seller checks, always</span></div><div className="flex items-center gap-3"><Clock3 className="text-primary" /><span className="text-sm font-bold">Reliable delivery updates</span></div><div className="flex items-center gap-3"><CircleCheck className="text-primary" /><span className="text-sm font-bold">No-stress returns</span></div></div>
         </div>
       </section>
