@@ -1,11 +1,16 @@
 import {
   ArrowRight,
   BadgePercent,
+  BadgeCheck,
   Box,
   ChevronRight,
-  Clock3,
+  CreditCard,
+  Gift,
+  Headphones,
   Heart,
+  HelpCircle,
   LogOut,
+  MapPin,
   MessageCircle,
   PackageCheck,
   RotateCcw,
@@ -16,6 +21,7 @@ import {
   Store,
   TicketPercent,
   Truck,
+  UsersRound,
   WalletCards,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -31,6 +37,17 @@ const orderActions = [
   { label: 'To Receive', icon: Truck, status: 'shipped' },
   { label: 'To Review', icon: MessageCircle, status: 'delivered' },
   { label: 'Returns & Cancellations', icon: RotateCcw, status: 'returns' },
+];
+
+const accountTools = [
+  { label: 'BOLOBAN Candy', detail: 'Collect rewards', icon: Gift, href: '/products', tone: 'bg-[#e5f3ff] text-[#3286c7]' },
+  { label: 'Buy Any 3', detail: 'Special offers', icon: BadgePercent, href: '/products?sort=price_asc', tone: 'bg-[#fff3c8] text-[#d49a00]' },
+  { label: 'Pickup Points', detail: 'Easy delivery options', icon: MapPin, href: '/products', tone: 'bg-[#e3f7ed] text-[#39a879]' },
+  { label: 'My Affiliates', detail: 'Share and earn', icon: UsersRound, href: '/seller', tone: 'bg-[#ffe8f1] text-[#d85c93]' },
+  { label: 'Help Center', detail: 'Get support', icon: HelpCircle, href: '/orders', tone: 'bg-[#e5f3ff] text-[#3185ce]' },
+  { label: 'Customer Care', detail: 'We are here to help', icon: Headphones, href: '/orders', tone: 'bg-[#f3e8ff] text-[#9b65ce]' },
+  { label: 'Ratings & Reviews', detail: 'Review your orders', icon: Star, href: '/orders', tone: 'bg-[#e3f7ed] text-[#39a879]' },
+  { label: 'Secure Payments', detail: 'Payment & privacy', icon: CreditCard, href: '/cart', tone: 'bg-[#e5f3ff] text-[#3185ce]' },
 ];
 
 export default function Account() {
@@ -142,13 +159,31 @@ export default function Account() {
 
         <section className="rounded-2xl bg-white p-4 shadow-sm md:p-5">
           <div className="mb-4 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-widest text-primary">Your history</p><h2 className="mt-1 text-xl font-black text-secondary">Recently Viewed</h2></div><Link href="/products" className="flex items-center gap-1 text-sm font-bold text-muted-foreground hover:text-primary" data-testid="link-account-view-more">View more <ChevronRight size={16} /></Link></div>
-          {productsQuery.isLoading ? <ProductSkeletons count={4} /> : productsQuery.isError ? <ErrorState onRetry={() => productsQuery.refetch()} title="Recently viewed products are unavailable" /> : <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{recentProducts.map((product) => <ProductCard key={product!.id} product={product!} />)}</div>}
+          {productsQuery.isLoading ? <ProductSkeletons count={4} /> : productsQuery.isError ? <ErrorState onRetry={() => productsQuery.refetch()} title="Recently viewed products are unavailable" /> : recentIds.length === 0 ? (
+            <div className="flex min-h-[150px] items-center justify-between gap-5 rounded-xl bg-[#fffdfb] px-4 py-3 md:px-8">
+              <div><p className="max-w-[250px] text-base font-medium leading-5 text-secondary">Rediscover the delightful items you&apos;ve viewed recently!</p><Link href="/products" className="mt-4 inline-flex rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground" data-testid="link-account-continue-shopping">Continue Shopping</Link></div>
+              <div className="relative hidden h-28 w-32 shrink-0 sm:block"><span className="absolute bottom-1 left-5 h-16 w-20 rotate-[-7deg] rounded-b-lg border-4 border-[#e7b789] bg-[#f7d1a5]" /><span className="absolute bottom-14 left-4 h-5 w-24 rotate-[-7deg] rounded-t-lg border-4 border-b-0 border-[#e7b789] bg-[#fff0d3]" /><span className="absolute right-1 top-2 text-3xl">✦</span><span className="absolute right-8 top-0 text-xl text-primary">✦</span></div>
+            </div>
+          ) : <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{recentProducts.map((product) => <ProductCard key={product!.id} product={product!} />)}</div>}
+        </section>
+
+        <section className="rounded-2xl bg-white p-4 shadow-sm md:p-5">
+          <div className="grid grid-cols-4 gap-y-5">
+            {accountTools.map((tool) => {
+              const Icon = tool.icon;
+              return <Link key={tool.label} href={tool.href} className="group flex min-w-0 flex-col items-center gap-2 rounded-xl px-1 py-2 text-center transition-colors hover:bg-[#fff8ef]" data-testid={`link-account-tool-${tool.label.toLowerCase().replaceAll(' ', '-')}`}>
+                <span className={`flex h-12 w-12 items-center justify-center rounded-xl ${tool.tone} transition-transform group-hover:-translate-y-0.5`}><Icon size={23} /></span>
+                <span className="text-[10px] font-bold leading-4 text-secondary sm:text-xs">{tool.label}</span>
+                <span className="hidden text-[10px] text-muted-foreground sm:block">{tool.detail}</span>
+              </Link>;
+            })}
+          </div>
         </section>
 
         <section className="grid gap-3 sm:grid-cols-3">
-          <Link href="/products" className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm transition-transform hover:-translate-y-0.5" data-testid="link-account-pickup-points"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eaf8f5] text-[#238b77]"><ShieldCheck size={21} /></span><span><strong className="block text-sm text-secondary">Pickup Points</strong><span className="text-xs text-muted-foreground">Find easy delivery options</span></span></Link>
-          <Link href="/seller" className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm transition-transform hover:-translate-y-0.5" data-testid="link-account-affiliates"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#fff3e8] text-primary"><BadgePercent size={21} /></span><span><strong className="block text-sm text-secondary">My Affiliates</strong><span className="text-xs text-muted-foreground">Share and earn with us</span></span></Link>
-          <Link href="/orders" className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm transition-transform hover:-translate-y-0.5" data-testid="link-account-help"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f1eaff] text-[#7e62c0]"><Settings size={21} /></span><span><strong className="block text-sm text-secondary">Account settings</strong><span className="text-xs text-muted-foreground">Orders and support</span></span></Link>
+          <Link href="/products" className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm transition-transform hover:-translate-y-0.5" data-testid="link-account-discover"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#eaf8f5] text-[#238b77]"><ShieldCheck size={21} /></span><span><strong className="block text-sm text-secondary">Safe shopping</strong><span className="text-xs text-muted-foreground">Trusted sellers and delivery</span></span></Link>
+          <Link href="/seller" className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm transition-transform hover:-translate-y-0.5" data-testid="link-account-sell"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#fff3e8] text-primary"><Store size={21} /></span><span><strong className="block text-sm text-secondary">Sell on BOLOBAN</strong><span className="text-xs text-muted-foreground">Start your shop today</span></span></Link>
+          <Link href="/orders" className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm transition-transform hover:-translate-y-0.5" data-testid="link-account-settings"><span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f1eaff] text-[#7e62c0]"><Settings size={21} /></span><span><strong className="block text-sm text-secondary">Account settings</strong><span className="text-xs text-muted-foreground">Orders and support</span></span></Link>
         </section>
       </div>
     </div>
