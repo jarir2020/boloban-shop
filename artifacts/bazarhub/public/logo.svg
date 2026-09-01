@@ -1,0 +1,7 @@
+<svg width="360" height="72" viewBox="0 0 360 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="3" y="3" width="66" height="66" rx="18" fill="#F57224"/>
+  <path d="M20 24L36 15L52 24V44C52 50.627 44.837 56 36 56C27.163 56 20 50.627 20 44V24Z" fill="#FFFDF8"/>
+  <path d="M28 32H44V41C44 45.418 40.418 49 36 49C31.582 49 28 45.418 28 41V32Z" fill="#173F3D"/>
+  <path d="M28 32L36 38L44 32" stroke="#F57224" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="86" y="46" fill="#173F3D" font-family="DM Sans, Arial, sans-serif" font-size="29" font-weight="800">BOLOBAN SHOP</text>
+</svg>

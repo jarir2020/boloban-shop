@@ -24,9 +24,6 @@ export function MarketShell({ children }: { children: ReactNode }) {
     setLocation(`/products${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
   };
 
-  const showLogin = () => toast({ title: 'Login', description: 'Account sign-in is coming soon. You can shop without an account.' });
-  const showRegister = () => toast({ title: 'Register', description: 'Registration is coming soon. You can start shopping right away.' });
-
   return (
     <div className="paper-grain min-h-[100dvh] bg-background text-foreground">
       <div className="bg-secondary px-4 py-2 text-center text-[11px] font-bold tracking-wide text-secondary-foreground">
@@ -53,8 +50,8 @@ export function MarketShell({ children }: { children: ReactNode }) {
               <ShoppingBag size={20} />
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
-            <button onClick={showLogin} className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</button>
-            <button onClick={showRegister} className="inline-flex rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-register">Register</button>
+            <Link href="/sign-in" className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</Link>
+            <Link href="/sign-up" className="inline-flex rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-register">Register</Link>
           </div>
         </div>
         <div className="hidden border-t border-primary-foreground/20 bg-secondary/95 md:block">
@@ -92,10 +89,10 @@ export function MarketShell({ children }: { children: ReactNode }) {
             {count > 0 && <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">{count > 99 ? '99+' : count}</span>}
             <span>Cart</span>
           </Link>
-          <button onClick={showLogin} className="flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-account">
+          <Link href="/sign-in" className="flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-account">
             <UserRound size={21} />
             <span>Account</span>
-          </button>
+          </Link>
         </div>
       </nav>
       <footer className="mt-20 bg-secondary text-secondary-foreground">

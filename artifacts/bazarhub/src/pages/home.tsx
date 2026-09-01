@@ -142,14 +142,14 @@ export default function Home() {
               <p className="mt-2 text-xs leading-5 text-[#777]">
                 Sign in for a faster checkout and order tracking.
               </p>
-              <button
-                onClick={() => window.alert('Account sign-in is coming soon. You can shop without an account.')}
+              <Link
+                href="/sign-in"
                 className="mt-3 w-full rounded-sm bg-[#f57224] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#d95f16]"
                 style={{ backgroundColor: '#f57224' }}
                 data-testid="button-home-sign-in"
               >
                 Sign in / Register
-              </button>
+              </Link>
             </div>
             <div className="rounded-sm bg-[#fff3e8] p-4 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-bold text-[#333]">
