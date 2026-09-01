@@ -1,6 +1,6 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
-import { Bell, Heart, Home, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
-import { useUser } from '@clerk/react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { Bell, Heart, Home, LogOut, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
+import { useClerk, useUser } from '@clerk/react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
@@ -18,14 +18,24 @@ export function MarketShell({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
   const { count } = useCart();
   const { isSignedIn } = useUser();
+  const { signOut } = useClerk();
   const { data: health } = useHealthCheck();
   const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
+  const [selectedMobileNav, setSelectedMobileNav] = useState<string | null>(null);
 
   const search = (event: FormEvent) => {
     event.preventDefault();
     setLocation(`/products${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
   };
   const accountHref = isSignedIn ? '/account' : '/sign-in';
+
+  useEffect(() => {
+    if (location === '/') setSelectedMobileNav('home');
+    else if (location.startsWith('/cart')) setSelectedMobileNav('cart');
+    else if (location.startsWith('/account')) setSelectedMobileNav('account');
+    else if (location.startsWith('/products?category=groceries')) setSelectedMobileNav('market');
+    else if (selectedMobileNav !== 'messages') setSelectedMobileNav(null);
+  }, [location]);
 
   return (
     <div className="paper-grain min-h-[100dvh] bg-background text-foreground">
@@ -54,7 +64,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
             {isSignedIn ? (
-              <Link href="/account" className="inline-flex items-center gap-1 rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-account">Account</Link>
+              <button onClick={() => void signOut()} className="inline-flex items-center justify-center rounded-lg bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/85" aria-label="Log out" title="Log out" data-testid="button-account"><LogOut size={18} /></button>
             ) : (
               <>
                 <Link href="/sign-in" className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</Link>
@@ -78,27 +88,27 @@ export function MarketShell({ children }: { children: ReactNode }) {
       <main className="pb-20 md:pb-0">{children}</main>
       <nav className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-card/95 px-2 shadow-[0_-8px_24px_-18px_hsl(var(--foreground)/.45)] backdrop-blur md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} aria-label="Mobile navigation">
         <div className="mx-auto grid h-[68px] max-w-lg grid-cols-5 items-end">
-          <Link href="/" className={`flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold ${location === '/' ? 'text-primary' : 'text-muted-foreground'}`} data-testid="mobile-nav-for-you">
+          <Link href="/" className={`flex h-full flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'home' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-for-you">
             <Home size={20} />
             <span>For You</span>
           </Link>
-          <button onClick={() => toast({ title: 'Messages', description: 'Your seller messages will appear here.' })} className="relative flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-messages">
+          <button onClick={() => { setSelectedMobileNav('messages'); toast({ title: 'Messages', description: 'Your seller messages will appear here.' }); }} className={`relative flex h-full flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'messages' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-messages">
             <MessageCircle size={21} />
             <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1.5 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">14</span>
             <span>Messages</span>
           </button>
-          <Link href="/products?category=groceries" className="group flex flex-col items-center justify-end gap-1 text-primary" data-testid="mobile-nav-fresh-market">
-            <span className="-mt-7 flex h-16 w-16 items-center justify-center rounded-full border-4 border-card bg-primary shadow-lg transition-transform group-hover:-translate-y-1">
-              <ShoppingBasket size={28} className="text-primary-foreground" />
+          <Link href="/products?category=groceries" className={`group flex flex-col items-center justify-end gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'market' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-fresh-market">
+            <span className={`-mt-7 flex h-16 w-16 items-center justify-center rounded-full border-4 border-card shadow-lg transition-transform group-hover:-translate-y-1 ${selectedMobileNav === 'market' ? 'bg-[#f2b705]' : 'bg-primary'}`}>
+              <ShoppingBasket size={28} className="text-white" />
             </span>
             <span className="pb-2 text-xs font-black">কাঁচা বাজার</span>
           </Link>
-          <Link href="/cart" className="relative flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-cart">
+          <Link href="/cart" className={`relative flex h-full flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'cart' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-cart">
             <ShoppingBag size={21} />
             {count > 0 && <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">{count > 99 ? '99+' : count}</span>}
             <span>Cart</span>
           </Link>
-          <Link href={accountHref} className={`flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold ${isSignedIn ? 'text-primary' : 'text-muted-foreground'}`} data-testid="mobile-nav-account">
+          <Link href={accountHref} className={`flex h-full flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'account' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-account">
             <UserRound size={21} />
             <span>Account</span>
           </Link>
