@@ -1,6 +1,6 @@
-import { ArrowLeft, Check, ChevronRight, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Heart, Minus, Plus, ShieldCheck, ShoppingBag, Star, Truck, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'wouter';
+import { Link, useLocation, useParams } from 'wouter';
 import { getGetProductQueryKey, getListProductReviewsQueryKey, getListProductsQueryKey, useGetProduct, useListProductReviews, useListProducts } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
 import { ProductCard, taka } from '@/components/product-card';
@@ -18,6 +18,7 @@ export default function ProductDetail() {
     { query: { enabled: Boolean(productQuery.data?.category), queryKey: getListProductsQueryKey(relatedParams) } },
   );
   const { addItem } = useCart();
+  const [, setLocation] = useLocation();
   const [quantity, setQuantity] = useState(1);
   const [favorite, setFavorite] = useState(false);
   const product = productQuery.data;
@@ -40,7 +41,8 @@ export default function ProductDetail() {
   if (productQuery.isLoading) return <div className="mx-auto max-w-[1100px] px-4 py-12"><div className="grid gap-8 md:grid-cols-2"><div className="aspect-square animate-pulse rounded-3xl bg-muted" /><div className="space-y-5"><div className="h-5 w-32 animate-pulse rounded bg-muted" /><div className="h-14 w-3/4 animate-pulse rounded bg-muted" /><div className="h-32 animate-pulse rounded bg-muted" /></div></div></div>;
   if (productQuery.isError || !product) return <div className="mx-auto max-w-[900px] px-4 py-12"><ErrorState onRetry={() => productQuery.refetch()} title="Could not find that product" /></div>;
 
-  const addToCart = () => { addItem(product, quantity); toast({ title: 'Added to your bag', description: `${quantity} × ${product.name}` }); };
+  const addToCart = () => { addItem(product, quantity); toast({ title: 'Added to your cart', description: `${quantity} × ${product.name}` }); };
+  const buyNow = () => { addItem(product, quantity); setLocation('/cart'); };
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 md:px-8 md:py-12">
@@ -53,7 +55,18 @@ export default function ProductDetail() {
           <div className="mt-5 flex items-center gap-3"><span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2.5 py-1 text-sm font-bold text-secondary"><Star size={15} className="fill-primary text-primary" /> {product.rating.toFixed(1)}</span><span className="text-sm text-muted-foreground">{product.reviews} reviews</span><span className="text-muted-foreground">·</span><span className="text-sm font-bold text-[hsl(151_35%_48%)]">{product.stock > 0 ? 'In stock' : 'Sold out'}</span></div>
           <div className="mt-7 flex items-end gap-3"><p className="font-mono-brand text-3xl font-bold text-secondary" data-testid="text-product-price">{taka(product.price)}</p>{product.originalPrice > product.price && <p className="pb-1 text-sm text-muted-foreground line-through">{taka(product.originalPrice)}</p>}</div>
           <p className="mt-6 max-w-xl text-sm leading-7 text-muted-foreground" data-testid="text-product-description">{product.description || 'A lovely everyday find from a seller who cares about the details. Packed with care and sent your way.'}</p>
-          <div className="mt-8 flex flex-wrap gap-3"><div className="flex items-center rounded-xl border border-border bg-card"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} className="p-3 text-muted-foreground hover:text-foreground" aria-label="Decrease quantity" data-testid="button-decrease-quantity"><Minus size={16} /></button><span className="w-8 text-center text-sm font-bold" data-testid="text-quantity">{quantity}</span><button onClick={() => setQuantity((value) => Math.min(product.stock || 1, value + 1))} className="p-3 text-muted-foreground hover:text-foreground" aria-label="Increase quantity" data-testid="button-increase-quantity"><Plus size={16} /></button></div><button onClick={addToCart} disabled={!product.stock} className="flex min-w-[180px] flex-1 items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3 font-bold text-secondary-foreground transition-transform hover:-translate-y-0.5 disabled:opacity-40" data-testid="button-detail-add-cart"><ShoppingBag size={18} /> Add to bag</button><button onClick={() => setFavorite((value) => !value)} className={`rounded-xl border p-3 transition-colors ${favorite ? 'border-accent bg-accent text-accent-foreground' : 'border-border bg-card hover:border-accent'}`} aria-label="Save product" data-testid="button-detail-favorite"><Heart size={20} fill={favorite ? 'currentColor' : 'none'} /></button></div>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <div className="flex h-12 items-center rounded-xl border border-border bg-card">
+              <button onClick={() => setQuantity((value) => Math.max(1, value - 1))} className="p-3 text-muted-foreground hover:text-foreground" aria-label="Decrease quantity" data-testid="button-decrease-quantity"><Minus size={16} /></button>
+              <span className="w-8 text-center text-sm font-bold" data-testid="text-quantity">{quantity}</span>
+              <button onClick={() => setQuantity((value) => Math.min(product.stock || 1, value + 1))} className="p-3 text-muted-foreground hover:text-foreground" aria-label="Increase quantity" data-testid="button-increase-quantity"><Plus size={16} /></button>
+            </div>
+            <div className="grid min-w-[250px] flex-1 grid-cols-2 gap-2">
+              <button onClick={addToCart} disabled={!product.stock} className="flex items-center justify-center gap-1.5 rounded-xl border-2 border-secondary bg-card px-3 py-3 text-sm font-bold text-secondary transition-colors hover:bg-secondary/10 disabled:opacity-40" data-testid="button-detail-add-cart"><ShoppingBag size={17} /> Add to Cart</button>
+              <button onClick={buyNow} disabled={!product.stock} className="flex items-center justify-center gap-1.5 rounded-xl bg-secondary px-3 py-3 text-sm font-bold text-secondary-foreground transition-transform hover:-translate-y-0.5 disabled:opacity-40" data-testid="button-detail-buy-now"><Zap size={17} /> Buy Now</button>
+            </div>
+            <button onClick={() => setFavorite((value) => !value)} className={`h-12 rounded-xl border p-3 transition-colors ${favorite ? 'border-accent bg-accent text-accent-foreground' : 'border-border bg-card hover:border-accent'}`} aria-label="Save product" data-testid="button-detail-favorite"><Heart size={20} fill={favorite ? 'currentColor' : 'none'} /></button>
+          </div>
           <div className="mt-8 grid gap-3 border-t border-border pt-6 text-xs font-bold text-muted-foreground sm:grid-cols-3"><span className="flex items-center gap-2"><Truck size={17} className="text-accent" /> Delivery nationwide</span><span className="flex items-center gap-2"><ShieldCheck size={17} className="text-[hsl(151_35%_48%)]" /> Seller checked</span><span className="flex items-center gap-2"><Check size={17} className="text-primary" /> Easy returns</span></div>
         </div>
       </div>
