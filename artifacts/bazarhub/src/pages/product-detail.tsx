@@ -26,6 +26,17 @@ export default function ProductDetail() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
+  useEffect(() => {
+    if (!product) return;
+    try {
+      const stored = JSON.parse(localStorage.getItem('boloban-recent-products') ?? '[]') as number[];
+      const recent = [product.id, ...stored.filter((productId) => productId !== product.id)].slice(0, 8);
+      localStorage.setItem('boloban-recent-products', JSON.stringify(recent));
+    } catch {
+      localStorage.setItem('boloban-recent-products', JSON.stringify([product.id]));
+    }
+  }, [product]);
+
   if (productQuery.isLoading) return <div className="mx-auto max-w-[1100px] px-4 py-12"><div className="grid gap-8 md:grid-cols-2"><div className="aspect-square animate-pulse rounded-3xl bg-muted" /><div className="space-y-5"><div className="h-5 w-32 animate-pulse rounded bg-muted" /><div className="h-14 w-3/4 animate-pulse rounded bg-muted" /><div className="h-32 animate-pulse rounded bg-muted" /></div></div></div>;
   if (productQuery.isError || !product) return <div className="mx-auto max-w-[900px] px-4 py-12"><ErrorState onRetry={() => productQuery.refetch()} title="Could not find that product" /></div>;
 

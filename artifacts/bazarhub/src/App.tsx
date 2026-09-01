@@ -14,6 +14,7 @@ import Products from '@/pages/products';
 import ProductDetail from '@/pages/product-detail';
 import Cart from '@/pages/cart';
 import Orders from '@/pages/orders';
+import Account from '@/pages/account';
 import { AdminSurface, SellerSurface } from '@/pages/surface';
 import {
   Route,
@@ -102,6 +103,7 @@ function Router() {
         <Route path="/products/:id" component={ProductDetail} />
         <Route path="/cart" component={Cart} />
         <Route path="/orders" component={Orders} />
+        <Route path="/account" component={Account} />
         <Route path="/seller" component={SellerSurface} />
         <Route path="/admin" component={AdminSurface} />
         <Route component={NotFound} />

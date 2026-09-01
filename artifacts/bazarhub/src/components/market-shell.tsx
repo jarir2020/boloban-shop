@@ -1,5 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { Bell, Heart, Home, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
+import { useUser } from '@clerk/react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
@@ -16,6 +17,7 @@ const links = [
 export function MarketShell({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
   const { count } = useCart();
+  const { isSignedIn } = useUser();
   const { data: health } = useHealthCheck();
   const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
 
@@ -23,6 +25,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
     event.preventDefault();
     setLocation(`/products${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
   };
+  const accountHref = isSignedIn ? '/account' : '/sign-in';
 
   return (
     <div className="paper-grain min-h-[100dvh] bg-background text-foreground">
@@ -50,8 +53,14 @@ export function MarketShell({ children }: { children: ReactNode }) {
               <ShoppingBag size={20} />
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
-            <Link href="/sign-in" className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</Link>
-            <Link href="/sign-up" className="inline-flex rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-register">Register</Link>
+            {isSignedIn ? (
+              <Link href="/account" className="inline-flex items-center gap-1 rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-account">Account</Link>
+            ) : (
+              <>
+                <Link href="/sign-in" className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</Link>
+                <Link href="/sign-up" className="inline-flex rounded-lg bg-secondary px-2 py-2 text-[10px] font-bold text-secondary-foreground transition-colors hover:bg-secondary/85 sm:px-3 sm:text-sm" data-testid="button-register">Register</Link>
+              </>
+            )}
           </div>
         </div>
         <div className="hidden border-t border-primary-foreground/20 bg-secondary/95 md:block">
@@ -89,7 +98,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
             {count > 0 && <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">{count > 99 ? '99+' : count}</span>}
             <span>Cart</span>
           </Link>
-          <Link href="/sign-in" className="flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold text-muted-foreground" data-testid="mobile-nav-account">
+          <Link href={accountHref} className={`flex h-full flex-col items-center justify-center gap-1 text-[10px] font-bold ${isSignedIn ? 'text-primary' : 'text-muted-foreground'}`} data-testid="mobile-nav-account">
             <UserRound size={21} />
             <span>Account</span>
           </Link>
