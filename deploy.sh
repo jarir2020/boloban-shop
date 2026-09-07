@@ -83,7 +83,7 @@ echo "  Time:    $(date '+%Y-%m-%d %H:%M:%S %Z')"
 echo "  Server:  $FTP_HOST:$FTP_PORT"
 echo "  Webroot: $FTP_DIR"
 echo "  API dir: $FTP_DIR$API_DIR/"
-echo "  Node:    $NODE_VERSION  (the server needs Node v24 LTS)"
+echo "  Node:    $NODE_VERSION  (the server needs Node v22+; works on 22.14 and 24 LTS)"
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -151,7 +151,7 @@ if [ "$SKIP_API" != "1" ]; then
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "start": "node --enable-source-maps index.mjs"
@@ -244,7 +244,7 @@ echo "  Frontend:  https://bengaliislamicinstitute.com/   (after DNS / host conf
 echo "  API:       https://bengaliislamicinstitute.com/$API_DIR/  (proxied via cPanel Node App)"
 echo ""
 echo "${YELLOW}Next steps on the server:${NC}"
-echo "  1. Install Node.js v24 (LTS) on the server — e.g. via nvm:"
+echo "  1. Install Node.js v22 or v24 (LTS) on the server — e.g. via nvm:"
 echo "       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash"
 echo "       nvm install 24"
 echo ""

@@ -1,6 +1,6 @@
 # BOLOBAN SHOP — llms.txt
 
-> Bangladesh-focused multi-vendor ecommerce marketplace. pnpm monorepo, React 19 + Express 5 + MySQL 8, TypeScript 5.9, Node 24.
+> Bangladesh-focused multi-vendor ecommerce marketplace. pnpm monorepo, React 19 + Express 5 + MySQL 8, TypeScript 5.9, Node 22+ (tested on 22.14 and 24).
 
 ## What this project is
 
@@ -65,7 +65,7 @@ mirror of the production MySQL schema — no external services needed.
 [deploy.sh](deploy.sh) builds both apps and uploads them via FTP to
 `ftp.bengaliislamicinstitute.com`. See
 [deployment_instructions.txt](deployment_instructions.txt) for the
-target server config. The api-server runs under Node.js v24 (LTS).
+target server config. The api-server runs under Node.js v22+ (LTS).
 
 ## Conventions
 

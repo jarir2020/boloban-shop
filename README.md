@@ -30,7 +30,7 @@ scripts/           # Workspace scripts
 
 ## Quick start (local)
 
-Requires Node.js **v24** (LTS), pnpm 11, and a MySQL 8 server.
+Requires Node.js **v22+** (works on 22.14 and 24 LTS), pnpm 11, and a MySQL 8 server.
 
 ```bash
 # 1. Install
