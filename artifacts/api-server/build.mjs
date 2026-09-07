@@ -27,6 +27,12 @@ async function buildAll() {
     // Examples of unbundleable packages:
     // - uses native modules and loads them dynamically (e.g. sharp)
     // - use path traversal to read files (e.g. @google-cloud/secret-manager loads sibling .proto files)
+    //
+    // NOTE on mysql2: the package is pure JS (no .node binding) so it CAN
+    // be inlined into the bundle. Earlier deployments put it in this
+    // external list, which made the api-server's `import "mysql2"`
+    // statement fail on the server (no node_modules → cannot resolve
+    // bare specifier). Keep it out of this list.
     external: [
       "*.node",
       "sharp",
@@ -79,7 +85,6 @@ async function buildAll() {
       "kerberos",
       "leveldown",
       "miniflare",
-      "mysql2",
       "newrelic",
       "odbc",
       "piscina",

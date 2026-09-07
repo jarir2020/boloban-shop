@@ -38,7 +38,11 @@ app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-if (!(process.env.NODE_ENV !== "production" && process.env.CLERK_DEV_BYPASS === "true")) {
+// Skip Clerk entirely when CLERK_DEV_BYPASS=true, regardless of
+// NODE_ENV.  The bypass flag means "I have no real Clerk keys
+// configured, so don't even try to authenticate."  Without this,
+// running in production without Clerk keys throws on every request.
+if (process.env.CLERK_DEV_BYPASS !== "true") {
   app.use(
     clerkMiddleware((req) => ({
       publishableKey: publishableKeyFromHost(
