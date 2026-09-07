@@ -110,6 +110,11 @@ if [ "$SKIP_BUILD" != "1" ]; then
       ./node_modules/.bin/vite build --config vite.config.ts )
   echo "${GREEN}  ✅ bazarhub built${NC}"
   echo ""
+
+  echo "${YELLOW}▶ Step 2b: Generating sitemap.xml…${NC}"
+  ( cd "$SCRIPT_DIR/scripts" && ./node_modules/.bin/tsx ./src/build-sitemap.ts )
+  echo "${GREEN}  ✅ sitemap built${NC}"
+  echo ""
 else
   echo "${YELLOW}▶ Step 1+2: Skipping build (SKIP_BUILD=1)${NC}"
   echo ""
