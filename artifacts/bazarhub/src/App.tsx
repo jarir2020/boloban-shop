@@ -11,6 +11,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import Home from '@/pages/home';
 import Products from '@/pages/products';
+import FreshMarket from '@/pages/fresh-market';
 import ProductDetail from '@/pages/product-detail';
 import Cart from '@/pages/cart';
 import Orders from '@/pages/orders';
@@ -30,8 +31,9 @@ const clerkPubKey = publishableKeyFromHost(
 );
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const clerkDevBypass = import.meta.env.VITE_CLERK_DEV_BYPASS === 'true';
 
-if (!clerkPubKey) {
+if (!clerkPubKey && !clerkDevBypass) {
   throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
 }
 
@@ -100,6 +102,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/products" component={Products} />
+        <Route path="/fresh-market" component={FreshMarket} />
         <Route path="/products/:id" component={ProductDetail} />
         <Route path="/cart" component={Cart} />
         <Route path="/orders" component={Orders} />
@@ -174,6 +177,26 @@ function ClerkProviderWithRoutes() {
 }
 
 function App() {
+  if (clerkDevBypass) {
+    // Local dev: skip Clerk entirely (no real keys available).
+    return (
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <CartProvider>
+            <WouterRouter base={basePath}>
+              <Switch>
+                <Route path="/sign-in/*?" component={SignInPage} />
+                <Route path="/sign-up/*?" component={SignUpPage} />
+                <Route component={() => <MarketShell><Router /></MarketShell>} />
+              </Switch>
+            </WouterRouter>
+          </CartProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

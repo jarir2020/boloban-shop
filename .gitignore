@@ -47,3 +47,12 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+deployment_instructions.txt
+
+# Local environment (DB credentials, ports)
+.env
+artifacts/*/.env
+artifacts/**/.env
+
+# Runtime artifacts from start-server.sh
+.run/

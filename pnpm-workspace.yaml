@@ -65,6 +65,17 @@ catalog:
   vite: ^7.3.2
   wouter: ^3.3.5
   zod: ^3.25.76
+  # Test stack — pinned in the catalog so all packages share the same versions.
+  '@testing-library/dom': ^10.4.0
+  '@testing-library/jest-dom': ^6.6.3
+  '@testing-library/react': ^16.3.0
+  '@testing-library/user-event': ^14.6.1
+  '@types/better-sqlite3': ^7.6.13
+  '@types/supertest': ^6.0.2
+  better-sqlite3: ^11.10.0
+  jsdom: ^25.0.1
+  supertest: ^7.0.0
+  vitest: ^2.1.9
 
 autoInstallPeers: false
 
@@ -158,3 +169,8 @@ overrides:
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
+
+allowBuilds:
+  '@clerk/shared': true
+  better-sqlite3: true
+  esbuild: true

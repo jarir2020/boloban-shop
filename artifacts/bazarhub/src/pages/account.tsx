@@ -26,10 +26,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'wouter';
-import { useClerk, useUser } from '@clerk/react';
+import { useClerk as useClerkReal, useUser as useUserReal } from '@clerk/react';
 import { useListProducts } from '@workspace/api-client-react';
+import { useClerkStub, useUserStub } from '@/lib/clerk-dev-shim';
 import { ProductCard } from '@/components/product-card';
 import { ErrorState, ProductSkeletons } from '@/components/page-states';
+
+const devBypass = import.meta.env.VITE_CLERK_DEV_BYPASS === 'true';
+const useUser = devBypass ? useUserStub : useUserReal;
+const useClerk = devBypass ? useClerkStub : useClerkReal;
 
 const orderActions = [
   { label: 'To Pay', icon: WalletCards, status: 'pending' },

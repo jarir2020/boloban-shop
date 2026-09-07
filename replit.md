@@ -7,9 +7,10 @@ BazarHub is a Bangladesh-focused multi-vendor ecommerce marketplace for discover
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
+- `pnpm test` — run the Vitest test suite (no external services required; uses an in-process SQLite)
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — MySQL connection string (the test suite mocks the DB layer and does not need it)
 
 ## Stack
 

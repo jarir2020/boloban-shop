@@ -1,0 +1,76 @@
+# BOLOBAN SHOP — llms.txt
+
+> Bangladesh-focused multi-vendor ecommerce marketplace. pnpm monorepo, React 19 + Express 5 + MySQL 8, TypeScript 5.9, Node 24.
+
+## What this project is
+
+A complete ecommerce marketplace that lets shoppers browse categories and
+deals, search and sort products, view product details and reviews, save
+items to a persistent cart, and check out with cash-on-delivery, bKash, or
+Nagad. The marketplace UI is a React SPA; the API is an Express 5 server
+backed by MySQL through Drizzle ORM.
+
+## Stack
+
+- **Frontend** — React 19, Vite 7, Tailwind CSS 4, TanStack Query, wouter
+- **Backend** — Express 5, Node.js 24, TypeScript 5.9, esbuild bundle
+- **Database** — MySQL 8, Drizzle ORM (decimal prices, varchar ids, timestamp_ms)
+- **Validation** — Zod (with `zod/v4` for the schema package)
+- **Auth** — Clerk (production); bypass flag `CLERK_DEV_BYPASS=true` for local dev
+- **Test stack** — Vitest, better-sqlite3 (in-process), supertest, @testing-library/react, jsdom
+
+## Workspace layout (high level)
+
+- `artifacts/bazarhub/` — React marketplace app (`@workspace/bazarhub`)
+  - Pages: `home`, `products`, `fresh-market`, `product-detail`, `cart`, `orders`, `account`, `surface`
+  - Libs: `cart` (Context + localStorage persistence), `clerk-dev-shim` (test/dev shim)
+- `artifacts/api-server/` — Express API (`@workspace/api-server`)
+  - Routes: `/api/healthz`, `/api/categories`, `/api/products`, `/api/products/:id`, `/api/products/:id/reviews`, `/api/deals`, `/api/orders`
+- `lib/db/` — Drizzle schema + connection (`@workspace/db`)
+- `lib/api-zod/` — Zod schemas (`@workspace/api-zod`)
+- `lib/api-client-react/` — Generated React Query hooks (`@workspace/api-client-react`)
+- `lib/api-spec/openapi.yaml` — OpenAPI source of truth
+
+## API surface (dialect-agnostic, runs on the MySQL backend)
+
+| Method | Path | Description |
+|---|---|---|
+| GET  | /api/healthz | Health check → `{ status: "ok" }` |
+| GET  | /api/categories | List categories |
+| GET  | /api/products | List products. Query: `q`, `category`, `sort` (popular\|price_asc\|price_desc\|rating), `limit` (≤50) |
+| GET  | /api/products/:id | Get a product |
+| GET  | /api/products/:id/reviews | List reviews for a product |
+| GET  | /api/deals | Top 6 deals by discount |
+| POST | /api/orders | Place an order. Body: `{ items: [{productId, quantity}], customerName, phone, address, paymentMethod: "cod"\|"bkash"\|"nagad" }` |
+| GET  | /api/orders | List recent orders |
+
+## Cart semantics
+
+- Persisted to `localStorage["bazarhub-cart"]`. Malformed JSON falls back
+  to an empty cart.
+- `addItem` clamps quantity to `product.stock`. If `stock === 0` exactly 1
+  is added (defensive default).
+- `updateQuantity(0)` removes the item.
+
+## Test suite
+
+67 tests across 5 files, ~3 s. `pnpm test`. CI on GitHub Actions:
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+The api-server tests mock `@workspace/db` with an in-memory SQLite
+mirror of the production MySQL schema — no external services needed.
+
+## Production deploy
+
+[deploy.sh](deploy.sh) builds both apps and uploads them via FTP to
+`ftp.bengaliislamicinstitute.com`. See
+[deployment_instructions.txt](deployment_instructions.txt) for the
+target server config. The api-server runs under Node.js v24 (LTS).
+
+## Conventions
+
+- All packages use ESM (`"type": "module"`).
+- Workspace aliases: `@workspace/db`, `@workspace/api-zod`, `@workspace/api-client-react`.
+- In the bazarhub frontend, the `@/*` alias maps to `artifacts/bazarhub/src/*`.
+- All routes use only portable drizzle operators (`eq`, `or`, `and`, `like`, `asc`, `desc`).
+- The Drizzle schema is defined twice: MySQL for production, SQLite for tests.

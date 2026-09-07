@@ -1,5 +1,5 @@
-@layer theme, base, clerk, components, utilities;
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Mono:wght@400;700&display=swap');
+@layer theme, base, clerk, components, utilities;
 @import 'tailwindcss';
 @import '@clerk/themes/shadcn.css';
 @import 'tw-animate-css';
@@ -146,6 +146,10 @@
   --app-font-sans: 'DM Sans', sans-serif;
   --app-font-serif: 'Fraunces', serif;
   --app-font-mono: 'Space Mono', monospace;
+  --fresh-ink: 176 48% 16%;
+  --fresh-mint: 155 40% 88%;
+  --fresh-cream: 42 58% 94%;
+  --fresh-coral: 10 77% 61%;
   --radius: 0.8rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
@@ -292,6 +296,10 @@
   --chart-3: 11 69% 62%;
   --chart-4: 258 43% 67%;
   --chart-5: 42 74% 65%;
+  --fresh-ink: 176 38% 92%;
+  --fresh-mint: 176 26% 24%;
+  --fresh-cream: 178 34% 14%;
+  --fresh-coral: 10 77% 65%;
 
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);

@@ -1,16 +1,22 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { Bell, Heart, Home, LogOut, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
-import { useClerk, useUser } from '@clerk/react';
+import { useClerk as useClerkReal, useUser as useUserReal } from '@clerk/react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
+import { useClerkStub, useUserStub } from '@/lib/clerk-dev-shim';
 import { toast } from '@/hooks/use-toast';
+
+const devBypass = import.meta.env.VITE_CLERK_DEV_BYPASS === 'true';
+const useUser = devBypass ? useUserStub : useUserReal;
+const useClerk = devBypass ? useClerkStub : useClerkReal;
 
 const logoImage = '/boloban-shop-logo.jpg';
 
 const links = [
   { href: '/', label: 'Home' },
   { href: '/products', label: 'Categories' },
+  { href: '/fresh-market', label: 'Fresh market' },
   { href: '/orders', label: 'My orders' },
 ];
 
@@ -33,7 +39,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
     if (location === '/') setSelectedMobileNav('home');
     else if (location.startsWith('/cart')) setSelectedMobileNav('cart');
     else if (location.startsWith('/account')) setSelectedMobileNav('account');
-    else if (location.startsWith('/products?category=groceries')) setSelectedMobileNav('market');
+    else if (location.startsWith('/fresh-market')) setSelectedMobileNav('market');
     else if (selectedMobileNav !== 'messages') setSelectedMobileNav(null);
   }, [location]);
 
@@ -97,7 +103,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
             <span className="absolute left-1/2 top-2 -translate-y-1/2 translate-x-1.5 rounded-full bg-accent px-1.5 py-0.5 text-[9px] leading-none text-accent-foreground">14</span>
             <span>Messages</span>
           </button>
-          <Link href="/products?category=groceries" className={`group flex flex-col items-center justify-end gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'market' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-fresh-market">
+          <Link href="/fresh-market" className={`group flex flex-col items-center justify-end gap-1 rounded-xl text-[10px] font-bold transition-colors ${selectedMobileNav === 'market' ? 'text-[#f2b705]' : 'text-muted-foreground'}`} data-testid="mobile-nav-fresh-market">
             <span className={`-mt-7 flex h-16 w-16 items-center justify-center rounded-full border-4 border-card shadow-lg transition-transform group-hover:-translate-y-1 ${selectedMobileNav === 'market' ? 'bg-[#f2b705]' : 'bg-primary'}`}>
               <ShoppingBasket size={28} className="text-white" />
             </span>

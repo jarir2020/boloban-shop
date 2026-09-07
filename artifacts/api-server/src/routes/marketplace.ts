@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, desc, eq, like, or } from "drizzle-orm";
 import {
   categoriesTable,
   db,
@@ -134,12 +134,184 @@ const seedProducts = [
   },
 ];
 
+const freshProducts = [
+  {
+    name: "Fresh Rui Fish — কাটিংসহ",
+    category: "fresh-market",
+    price: "650",
+    originalPrice: "720",
+    discount: 10,
+    rating: "4.8",
+    reviews: 94,
+    image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=800&q=85",
+    seller: "আজকের বাজার",
+    badge: "মাছ",
+    stock: 35,
+    description: "আজকের টাটকা রুই মাছ, পরিষ্কার করে আপনার পছন্দমতো কাটিংসহ পৌঁছে যাবে।",
+  },
+  {
+    name: "দেশি ইলিশ মাছ",
+    category: "fresh-market",
+    price: "1450",
+    originalPrice: "1650",
+    discount: 12,
+    rating: "4.9",
+    reviews: 61,
+    image: "https://images.unsplash.com/photo-1510130387422-82bed34b37e9?w=800&q=85",
+    seller: "নদীর ঘাট",
+    badge: "মাছ",
+    stock: 18,
+    description: "নির্বাচিত দেশি ইলিশ, বরফে সংরক্ষণ করে দ্রুত ডেলিভারি।",
+  },
+  {
+    name: "দেশি ব্রয়লার চিকেন",
+    category: "fresh-market",
+    price: "330",
+    originalPrice: "370",
+    discount: 11,
+    rating: "4.7",
+    reviews: 83,
+    image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=800&q=85",
+    seller: "Farm Fresh BD",
+    badge: "মাংস",
+    stock: 42,
+    description: "সকালের fresh chicken, পরিষ্কার করে ৮ পিস বা আপনার পছন্দমতো কাটিং।",
+  },
+  {
+    name: "নতুন আলু — ১ কেজি",
+    category: "fresh-market",
+    price: "55",
+    originalPrice: "65",
+    discount: 15,
+    rating: "4.8",
+    reviews: 128,
+    image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&q=85",
+    seller: "সবুজ ঝুড়ি",
+    badge: "আলু-পেঁয়াজ",
+    stock: 120,
+    description: "দেশি নতুন আলু, বাছাই করা ও মাটি পরিষ্কার করা।",
+  },
+  {
+    name: "দেশি পেঁয়াজ — ১ কেজি",
+    category: "fresh-market",
+    price: "95",
+    originalPrice: "110",
+    discount: 14,
+    rating: "4.7",
+    reviews: 117,
+    image: "https://images.unsplash.com/photo-1508747703725-719777637510?w=800&q=85",
+    seller: "সবুজ ঝুড়ি",
+    badge: "আলু-পেঁয়াজ",
+    stock: 98,
+    description: "তাজা দেশি পেঁয়াজ, প্রতিদিনের রান্নার জন্য perfect choice।",
+  },
+  {
+    name: "টাটকা টমেটো — ৫০০ গ্রাম",
+    category: "fresh-market",
+    price: "80",
+    originalPrice: "95",
+    discount: 16,
+    rating: "4.6",
+    reviews: 72,
+    image: "https://images.unsplash.com/photo-1561136594-7f68413baa99?w=800&q=85",
+    seller: "কৃষকের হাট",
+    badge: "শাকসবজি",
+    stock: 75,
+    description: "লাল, পাকা ও টাটকা টমেটো—সালাদ, ভর্তা বা রান্নার জন্য।",
+  },
+  {
+    name: "মিশ্র সবজি ঝুড়ি",
+    category: "fresh-market",
+    price: "220",
+    originalPrice: "270",
+    discount: 19,
+    rating: "4.9",
+    reviews: 88,
+    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=85",
+    seller: "কৃষকের হাট",
+    badge: "শাকসবজি",
+    stock: 46,
+    description: "গাজর, ফুলকপি, বরবটি, বেগুন ও ক্যাপসিকামের fresh family pack।",
+  },
+  {
+    name: "লাল শাক — ২ আঁটি",
+    category: "fresh-market",
+    price: "35",
+    originalPrice: "45",
+    discount: 22,
+    rating: "4.8",
+    reviews: 69,
+    image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&q=85",
+    seller: "কৃষকের হাট",
+    badge: "শাকসবজি",
+    stock: 65,
+    description: "সকালে তোলা নরম লাল শাক, পুষ্টিকর ও রান্নার জন্য ready।",
+  },
+  {
+    name: "মসুর ডাল — ১ কেজি",
+    category: "fresh-market",
+    price: "160",
+    originalPrice: "180",
+    discount: 11,
+    rating: "4.8",
+    reviews: 104,
+    image: "https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=800&q=85",
+    seller: "ঘরের বাজার",
+    badge: "ডাল ও শস্য",
+    stock: 84,
+    description: "বাছাই করা মসুর ডাল, পরিষ্কার ও প্রতিদিনের রান্নার উপযোগী।",
+  },
+  {
+    name: "মুগ ডাল — ৫০০ গ্রাম",
+    category: "fresh-market",
+    price: "190",
+    originalPrice: "215",
+    discount: 12,
+    rating: "4.7",
+    reviews: 58,
+    image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&q=85",
+    seller: "ঘরের বাজার",
+    badge: "ডাল ও শস্য",
+    stock: 71,
+    description: "হালকা ও সুস্বাদু মুগ ডাল, খিচুড়ি ও ডালের জন্য perfect।",
+  },
+  {
+    name: "গুঁড়া জিরা — ২০০ গ্রাম",
+    category: "fresh-market",
+    price: "120",
+    originalPrice: "145",
+    discount: 17,
+    rating: "4.9",
+    reviews: 76,
+    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&q=85",
+    seller: "মসলা ঘর",
+    badge: "মসলা ও পেস্ট",
+    stock: 60,
+    description: "সুগন্ধি ভাজা জিরা গুঁড়া, airtight pack-এ fresh রাখা হয়।",
+  },
+  {
+    name: "আদা-রসুন পেস্ট — ২৫০ গ্রাম",
+    category: "fresh-market",
+    price: "180",
+    originalPrice: "210",
+    discount: 14,
+    rating: "4.8",
+    reviews: 91,
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=800&q=85",
+    seller: "মসলা ঘর",
+    badge: "মসলা ও পেস্ট",
+    stock: 52,
+    description: "তাজা আদা ও রসুনের smooth paste, রান্নার সময় বাঁচাতে ready।",
+  },
+];
+
 const seedCategories = [
   { id: "electronics", name: "Electronics", nameBn: "ইলেকট্রনিক্স", icon: "⌁", count: 248 },
   { id: "fashion", name: "Fashion", nameBn: "ফ্যাশন", icon: "◌", count: 412 },
   { id: "home", name: "Home & Living", nameBn: "হোম & লিভিং", icon: "⌂", count: 187 },
   { id: "beauty", name: "Beauty", nameBn: "বিউটি", icon: "✦", count: 126 },
   { id: "groceries", name: "Groceries", nameBn: "গ্রোসারি", icon: "◒", count: 309 },
+  { id: "fresh-market", name: "Fresh Market", nameBn: "কাঁচা বাজার", icon: "◒", count: freshProducts.length },
   { id: "lifestyle", name: "Lifestyle", nameBn: "লাইফস্টাইল", icon: "◎", count: 154 },
 ];
 
@@ -155,13 +327,35 @@ function ensureSeeded() {
   if (!seedPromise) {
     seedPromise = (async () => {
       const existing = await db.select({ id: productsTable.id }).from(productsTable).limit(1);
-      if (existing.length) return;
-      await db.insert(categoriesTable).values(seedCategories);
-      const inserted = await db.insert(productsTable).values(seedProducts).returning({ id: productsTable.id });
-      await db.insert(reviewsTable).values(
-        seedReviews.map((review) => ({ ...review, productId: inserted[review.productId - 1]?.id ?? inserted[0].id })),
-      );
-      logger.info("Seeded BazarHub marketplace catalog");
+      if (!existing.length) {
+        await db.insert(categoriesTable).values(seedCategories);
+        const productsResult = await db.insert(productsTable).values(seedProducts);
+        const firstProductId = Number(productsResult[0]?.insertId ?? 1);
+        const productIdMap = new Map<number, number>();
+        seedProducts.forEach((_, idx) => productIdMap.set(idx + 1, firstProductId + idx));
+        await db.insert(reviewsTable).values(
+          seedReviews.map((review) => ({
+            ...review,
+            productId: productIdMap.get(review.productId) ?? firstProductId,
+          })),
+        );
+        await db.insert(productsTable).values(freshProducts);
+        logger.info("Seeded BazarHub marketplace catalog");
+        return;
+      }
+
+      const categoryRows = await db.select({ id: categoriesTable.id }).from(categoriesTable);
+      const categoryIds = new Set(categoryRows.map((category) => category.id));
+      const missingCategories = seedCategories.filter((category) => !categoryIds.has(category.id));
+      if (missingCategories.length) await db.insert(categoriesTable).values(missingCategories);
+
+      const freshExisting = await db.select({ id: productsTable.id }).from(productsTable)
+        .where(eq(productsTable.category, "fresh-market"))
+        .limit(1);
+      if (!freshExisting.length) {
+        await db.insert(productsTable).values(freshProducts);
+        logger.info("Added fresh market catalog to BazarHub");
+      }
     })().catch((error) => {
       seedPromise = undefined;
       logger.error({ error }, "Could not seed marketplace catalog");
@@ -195,7 +389,7 @@ router.get("/products", async (req, res) => {
   }
   const { q, category, sort, limit } = parsed.data;
   const filters = [];
-  if (q) filters.push(or(ilike(productsTable.name, `%${q}%`), ilike(productsTable.description, `%${q}%`)));
+  if (q) filters.push(or(like(productsTable.name, `%${q}%`), like(productsTable.description, `%${q}%`)));
   if (category) filters.push(eq(productsTable.category, category));
   let query = db.select().from(productsTable);
   if (filters.length) query = query.where(and(...filters)) as typeof query;
