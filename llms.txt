@@ -1,6 +1,6 @@
 # BOLOBAN SHOP — llms.txt
 
-> Bangladesh-focused multi-vendor ecommerce marketplace. pnpm monorepo, React 19 + Express 5 + MySQL 8, TypeScript 5.9, Node 22+ (tested on 22.14 and 24).
+> Bangladesh-focused multi-vendor ecommerce marketplace. pnpm monorepo, React 19 + Express 5 + MySQL 8, TypeScript 5.9, Node 22+ (tested on 22.14 and 24). Custom scrypt-based auth, server-side sessions in an httpOnly cookie.
 
 ## What this project is
 
@@ -41,8 +41,19 @@ backed by MySQL through Drizzle ORM.
 | GET  | /api/products/:id | Get a product |
 | GET  | /api/products/:id/reviews | List reviews for a product |
 | GET  | /api/deals | Top 6 deals by discount |
-| POST | /api/orders | Place an order. Body: `{ items: [{productId, quantity}], customerName, phone, address, paymentMethod: "cod"\|"bkash"\|"nagad" }` |
+| POST | /api/orders | Place an order. Body: `{ items: [{productId, quantity}], customerName, phone, address, paymentMethod: "cod"\|"bkash"\|"nagad" }`. When authenticated, the order's `user_id` is set to the signed-in user. |
 | GET  | /api/orders | List recent orders |
+| POST | /api/auth/signup | Create an account. Body: `{ email, password (≥8), name, phone?, role? }` |
+| POST | /api/auth/signin | Sign in. Body: `{ email, password }`. Sets the `boloban_session` cookie. |
+| POST | /api/auth/signout | Sign out. Clears the session cookie. |
+| GET  | /api/auth/me | Returns the current user, or 401. |
+| POST | /api/dev/seed-users | Idempotent: insert the three demo users when `?key=$DEV_SEED_KEY` is correct. |
+
+## Demo users (seed via POST /api/dev/seed-users)
+
+- `shopper@boloban.local` / `Shopper123!` — role: shopper
+- `seller@boloban.local` / `Seller123!` — role: seller
+- `admin@boloban.local`  / `Admin123!`  — role: admin
 
 ## Cart semantics
 

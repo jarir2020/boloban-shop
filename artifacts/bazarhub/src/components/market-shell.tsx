@@ -1,15 +1,10 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { Bell, Heart, Home, LogOut, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
-import { useClerk as useClerkReal, useUser as useUserReal } from '@clerk/react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
-import { useClerkStub, useUserStub } from '@/lib/clerk-dev-shim';
+import { useAuth } from '@/lib/auth';
 import { toast } from '@/hooks/use-toast';
-
-const devBypass = import.meta.env.VITE_CLERK_DEV_BYPASS === 'true';
-const useUser = devBypass ? useUserStub : useUserReal;
-const useClerk = devBypass ? useClerkStub : useClerkReal;
 
 const logoImage = '/boloban-shop-logo.jpg';
 
@@ -23,8 +18,7 @@ const links = [
 export function MarketShell({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
   const { count } = useCart();
-  const { isSignedIn } = useUser();
-  const { signOut } = useClerk();
+  const { user, signOut } = useAuth();
   const { data: health } = useHealthCheck();
   const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
   const [selectedMobileNav, setSelectedMobileNav] = useState<string | null>(null);
@@ -33,7 +27,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
     event.preventDefault();
     setLocation(`/products${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`);
   };
-  const accountHref = isSignedIn ? '/account' : '/sign-in';
+  const accountHref = user ? '/account' : '/sign-in';
 
   useEffect(() => {
     if (location === '/') setSelectedMobileNav('home');
@@ -69,7 +63,7 @@ export function MarketShell({ children }: { children: ReactNode }) {
               <ShoppingBag size={20} />
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
-            {isSignedIn ? (
+            {user ? (
               <button onClick={() => void signOut()} className="inline-flex items-center justify-center rounded-lg bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/85" aria-label="Log out" title="Log out" data-testid="button-account"><LogOut size={18} /></button>
             ) : (
               <>

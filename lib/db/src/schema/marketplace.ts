@@ -48,6 +48,8 @@ export const ordersTable = mysqlTable("marketplace_orders", {
   status: text("status").notNull(),
   total: decimal("total", { precision: 12, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  // Optional FK to marketplace_users.id; null for guest checkout.
+  userId: int("user_id"),
   customerName: text("customer_name").notNull(),
   phone: text("phone").notNull(),
   address: text("address").notNull(),
@@ -61,9 +63,29 @@ export const orderItemsTable = mysqlTable("marketplace_order_items", {
   quantity: int("quantity").notNull(),
 });
 
+export const usersTable = mysqlTable("marketplace_users", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull().default(""),
+  // One of: 'shopper' | 'seller' | 'admin'.
+  role: text("role").notNull().default("shopper"),
+  imageUrl: text("image_url").notNull().default(""),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const sessionsTable = mysqlTable("marketplace_sessions", {
+  id: text("id").primaryKey(),
+  userId: int("user_id").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
 export const insertOrderSchema = createInsertSchema(ordersTable).omit({
   id: true,
   createdAt: true,
+  userId: true,
 });
 export const insertOrderItemSchema = createInsertSchema(orderItemsTable).omit({
   id: true,
@@ -78,3 +100,5 @@ export type Category = typeof categoriesTable.$inferSelect;
 export type Product = typeof productsTable.$inferSelect;
 export type Review = typeof reviewsTable.$inferSelect;
 export type Order = typeof ordersTable.$inferSelect;
+export type User = typeof usersTable.$inferSelect;
+export type Session = typeof sessionsTable.$inferSelect;

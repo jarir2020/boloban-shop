@@ -451,7 +451,19 @@ router.post("/orders", async (req, res) => {
   const total = items.reduce((sum, item) => sum + Number(byId.get(item.productId)!.price) * item.quantity, 0);
   const id = `BH-${Math.floor(Date.now() / 1000).toString(36).toUpperCase()}`;
   const createdAt = new Date();
-  await db.insert(ordersTable).values({ id, status: "Processing", total: total.toFixed(2), createdAt, customerName, phone, address, paymentMethod });
+  // If the request is authenticated, link the order to the user.
+  const userId = req.user?.id ?? null;
+  await db.insert(ordersTable).values({
+    id,
+    status: "Processing",
+    total: total.toFixed(2),
+    createdAt,
+    userId,
+    customerName,
+    phone,
+    address,
+    paymentMethod,
+  });
   await db.insert(orderItemsTable).values(items.map((item) => ({ orderId: id, productId: item.productId, quantity: item.quantity })));
   res.status(201).json({ id, status: "Processing", items, total, createdAt: createdAt.toISOString(), customerName, phone, address, paymentMethod });
 });

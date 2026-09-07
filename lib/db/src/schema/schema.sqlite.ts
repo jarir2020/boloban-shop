@@ -69,6 +69,8 @@ export const ordersTable = sqliteTable("marketplace_orders", {
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
+  // Optional FK to marketplace_users.id. Nullable for guest checkout.
+  userId: integer("user_id"),
   customerName: text("customer_name").notNull(),
   phone: text("phone").notNull(),
   address: text("address").notNull(),
@@ -80,4 +82,26 @@ export const orderItemsTable = sqliteTable("marketplace_order_items", {
   orderId: text("order_id").notNull(),
   productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull(),
+});
+
+export const usersTable = sqliteTable("marketplace_users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull().default(""),
+  role: text("role").notNull().default("shopper"),
+  imageUrl: text("image_url").notNull().default(""),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const sessionsTable = sqliteTable("marketplace_sessions", {
+  id: text("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
 });

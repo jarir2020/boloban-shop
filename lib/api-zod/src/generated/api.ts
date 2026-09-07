@@ -189,3 +189,48 @@ export const ListOrdersResponseItem = zod.object({
 export const ListOrdersResponse = zod.array(ListOrdersResponseItem)
 
 
+
+
+/**
+ * @summary Sign up a new user
+ */
+export const signUpBodyPasswordMin = 8;
+
+export const SignUpBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(signUpBodyPasswordMin),
+  "name": zod.string().min(1),
+  "phone": zod.string().optional(),
+  "role": zod.enum(['shopper', 'seller', 'admin']).optional()
+})
+
+
+/**
+ * @summary Sign in
+ */
+export const SignInBody = zod.object({
+  "email": zod.string().email(),
+  "password": zod.string().min(1)
+})
+
+
+/**
+ * @summary Public user (safe to send to the client)
+ */
+export const PublicUser = zod.object({
+  "id": zod.number(),
+  "email": zod.string(),
+  "name": zod.string(),
+  "phone": zod.string(),
+  "role": zod.string(),
+  "imageUrl": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Auth response (signin / signup / me)
+ */
+export const AuthResponse = zod.object({
+  "user": PublicUser
+})

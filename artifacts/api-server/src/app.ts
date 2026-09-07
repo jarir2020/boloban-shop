@@ -1,15 +1,9 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
-import { clerkMiddleware } from "@clerk/express";
-import { publishableKeyFromHost } from "@clerk/shared/keys";
 import router from "./routes";
+import { attachUser } from "./middlewares/requireUser";
 import { logger } from "./lib/logger";
-import {
-  CLERK_PROXY_PATH,
-  clerkProxyMiddleware,
-  getClerkProxyHost,
-} from "./middlewares/clerkProxyMiddleware";
 
 const app: Express = express();
 
@@ -22,6 +16,7 @@ app.use(
           id: req.id,
           method: req.method,
           url: req.url?.split("?")[0],
+          userId: (req as unknown as { user?: { id: number } | null }).user?.id ?? null,
         };
       },
       res(res) {
@@ -32,26 +27,14 @@ app.use(
     },
   }),
 );
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Skip Clerk entirely when CLERK_DEV_BYPASS=true, regardless of
-// NODE_ENV.  The bypass flag means "I have no real Clerk keys
-// configured, so don't even try to authenticate."  Without this,
-// running in production without Clerk keys throws on every request.
-if (process.env.CLERK_DEV_BYPASS !== "true") {
-  app.use(
-    clerkMiddleware((req) => ({
-      publishableKey: publishableKeyFromHost(
-        getClerkProxyHost(req) ?? "",
-        process.env.CLERK_PUBLISHABLE_KEY,
-      ),
-    })),
-  );
-}
+// Populate `req.user` for every request based on the `boloban_session`
+// cookie.  Mounted before the router so handlers can read it.
+app.use(attachUser);
 
 app.use("/api", router);
 

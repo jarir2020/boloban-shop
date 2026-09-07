@@ -16,6 +16,8 @@ import {
   ordersTable,
   productsTable,
   reviewsTable,
+  sessionsTable,
+  usersTable,
 } from "../schema/schema.sqlite.js";
 import * as schema from "../schema/schema.sqlite.js";
 
@@ -218,6 +220,7 @@ function createSchema(raw: Database.Database) {
       status TEXT NOT NULL,
       total TEXT NOT NULL,
       created_at INTEGER NOT NULL,
+      user_id INTEGER,
       customer_name TEXT NOT NULL,
       phone TEXT NOT NULL,
       address TEXT NOT NULL,
@@ -228,6 +231,22 @@ function createSchema(raw: Database.Database) {
       order_id TEXT NOT NULL,
       product_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL
+    );
+    CREATE TABLE marketplace_users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL DEFAULT '',
+      role TEXT NOT NULL DEFAULT 'shopper',
+      image_url TEXT NOT NULL DEFAULT '',
+      created_at INTEGER NOT NULL DEFAULT (CAST(strftime('%s','now') AS INTEGER) * 1000)
+    );
+    CREATE TABLE marketplace_sessions (
+      id TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (CAST(strftime('%s','now') AS INTEGER) * 1000),
+      expires_at INTEGER NOT NULL
     );
   `);
 }
@@ -266,6 +285,8 @@ export function createTestDb(): TestDb {
     schema,
     reset() {
       raw.exec(`
+        DELETE FROM marketplace_sessions;
+        DELETE FROM marketplace_users;
         DELETE FROM marketplace_order_items;
         DELETE FROM marketplace_orders;
         DELETE FROM marketplace_reviews;
@@ -286,4 +307,6 @@ export const TEST_TABLES = {
   reviewsTable,
   ordersTable,
   orderItemsTable,
+  usersTable,
+  sessionsTable,
 };

@@ -25,16 +25,11 @@ import {
   WalletCards,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'wouter';
-import { useClerk as useClerkReal, useUser as useUserReal } from '@clerk/react';
+import { Link, useLocation } from 'wouter';
 import { useListProducts } from '@workspace/api-client-react';
-import { useClerkStub, useUserStub } from '@/lib/clerk-dev-shim';
+import { useAuth } from '@/lib/auth';
 import { ProductCard } from '@/components/product-card';
 import { ErrorState, ProductSkeletons } from '@/components/page-states';
-
-const devBypass = import.meta.env.VITE_CLERK_DEV_BYPASS === 'true';
-const useUser = devBypass ? useUserStub : useUserReal;
-const useClerk = devBypass ? useClerkStub : useClerkReal;
 
 const orderActions = [
   { label: 'To Pay', icon: WalletCards, status: 'pending' },
@@ -56,10 +51,29 @@ const accountTools = [
 ];
 
 export default function Account() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
+  const { user, status, signOut } = useAuth();
+  const [, setLocation] = useLocation();
   const productsQuery = useListProducts({ limit: 50, sort: 'popular' });
   const [recentIds, setRecentIds] = useState<number[]>([]);
+
+  // While the auth state is still loading, show a skeleton.
+  if (status === 'loading') {
+    return <div className="mx-auto max-w-[920px] px-4 py-16"><div className="h-64 animate-pulse rounded-3xl bg-muted" /></div>;
+  }
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-[620px] px-4 py-20 text-center md:px-8">
+        <div className="rounded-3xl border border-border bg-card p-8 shadow-sm md:p-12">
+          <h1 className="mt-5 font-display text-4xl text-secondary">Your account</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">Sign in to view your profile, orders, vouchers and recently viewed products.</p>
+          <div className="mt-7 flex justify-center gap-3">
+            <Link href="/sign-in" className="rounded-xl bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground">Sign in</Link>
+            <Link href="/sign-up" className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Register</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     try {
@@ -76,29 +90,11 @@ export default function Account() {
     return (viewed.length ? viewed : products.slice(0, 4)).slice(0, 4);
   }, [productsQuery.data, recentIds]);
 
-  if (!isLoaded) {
-    return <div className="mx-auto max-w-[920px] px-4 py-16"><div className="h-64 animate-pulse rounded-3xl bg-muted" /></div>;
-  }
-
-  if (!isSignedIn || !user) {
-    return (
-      <div className="mx-auto max-w-[620px] px-4 py-20 text-center md:px-8">
-        <div className="rounded-3xl border border-border bg-card p-8 shadow-sm md:p-12">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary"><ShoppingBag size={30} /></div>
-          <h1 className="mt-5 font-display text-4xl text-secondary">Your account</h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">Login to view your profile, orders, vouchers and recently viewed products.</p>
-          <div className="mt-7 flex justify-center gap-3">
-            <Link href="/sign-in" className="rounded-xl bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-account-login">Login</Link>
-            <Link href="/sign-up" className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-account-register">Register</Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const name = user.fullName || user.username || 'BOLOBAN SHOP member';
-  const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || 'Email not available';
-  const joinedDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-BD', { month: 'short', year: 'numeric' }) : 'New member';
+  const name = user.name || user.email.split("@")[0] || 'BOLOBAN SHOP member';
+  const email = user.email || 'Email not available';
+  const joinedDate = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-BD', { month: 'short', year: 'numeric' })
+    : 'New member';
 
   return (
     <div className="bg-[#f7f7f7] pb-10">
@@ -113,7 +109,7 @@ export default function Account() {
                 <p className="mt-2 text-xs text-muted-foreground">Member since {joinedDate}</p>
               </div>
             </div>
-            <button onClick={() => signOut({ redirectUrl: basePathForAccount() })} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-white/80 px-3 py-2 text-xs font-bold text-secondary transition-colors hover:border-primary hover:text-primary" data-testid="button-account-logout">
+            <button onClick={async () => { await signOut(); setLocation('/'); }} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-white/80 px-3 py-2 text-xs font-bold text-secondary transition-colors hover:border-primary hover:text-primary" data-testid="button-account-logout">
               <LogOut size={15} /> <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
@@ -193,8 +189,4 @@ export default function Account() {
       </div>
     </div>
   );
-}
-
-function basePathForAccount() {
-  return `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}`;
 }
