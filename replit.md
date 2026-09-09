@@ -38,15 +38,26 @@ BazarHub is a Bangladesh-focused multi-vendor ecommerce marketplace for discover
 
 Users can browse categories and deals, search and sort products, view product details and reviews, save items to a persistent cart, check out with cash-on-delivery/bKash/Nagad selections, and view recent orders. Seller and admin surfaces are included as foundations for future role-specific operations.
 
-## User preferences
+## User preferences & Project Context
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- **Live Deployment**: <https://boloban.shop/>
+- **Deployment Method**: Uses `./deploy.sh` for FTP deployment directly to cPanel server (bypassing GitHub Actions limits).
+- **SPA Apache Routing**: Includes `artifacts/bazarhub/public/.htaccess` to fallback client-side routes (`/admin`, `/seller`, `/cart`) to `index.html`.
+- **User Roles & Credentials**:
+  - `admin@boloban.local` / `Admin123!` (Role: `admin`)
+  - `seller@boloban.local` / `Seller123!` (Role: `seller`)
+  - `shopper@boloban.local` / `Shopper123!` (Role: `shopper`)
+  - Gated seed endpoint: `POST /api/dev/seed-users?key=$DEV_SEED_KEY`
+- **Admin Panel**:
+  - Route: `/admin` (Redirected upon logging in as `admin@boloban.local`).
+  - Active Plan: Redesigning `/admin` into a multi-tab Admin Management Dashboard (KPIs, Order status updates, Product management, System seeds).
 
 ## Gotchas
 
 - After changing `lib/api-spec/openapi.yaml`, run `pnpm --filter @workspace/api-spec run codegen` before changing API consumers.
 - Database schema changes require `pnpm --filter @workspace/db run push` in development.
+- Always ensure `deploy.sh` builds and copies `.htaccess` to `artifacts/bazarhub/dist/public/.htaccess` before FTP upload.
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
