@@ -108,6 +108,7 @@ if [ "$SKIP_BUILD" != "1" ]; then
   ( cd "$SCRIPT_DIR/artifacts/bazarhub" && \
     PORT=4173 BASE_PATH=/ \
       ./node_modules/.bin/vite build --config vite.config.ts )
+  cp "$SCRIPT_DIR/artifacts/bazarhub/public/.htaccess" "$SCRIPT_DIR/artifacts/bazarhub/dist/public/.htaccess" 2>/dev/null || true
   echo "${GREEN}  ✅ bazarhub built${NC}"
   echo ""
 

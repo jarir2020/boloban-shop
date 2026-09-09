@@ -16,8 +16,14 @@ export default function SignIn() {
     setError(null);
     setSubmitting(true);
     try {
-      await signIn(email, password);
-      setLocation('/');
+      const loggedUser = await signIn(email, password);
+      if (loggedUser.role === 'admin') {
+        setLocation('/admin');
+      } else if (loggedUser.role === 'seller') {
+        setLocation('/seller');
+      } else {
+        setLocation('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not sign in');
     } finally {

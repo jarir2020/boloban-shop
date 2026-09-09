@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Bell, Heart, Home, LogOut, Menu, MessageCircle, Search, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
+import { Bell, Heart, Home, LogOut, Menu, MessageCircle, Search, ShieldCheck, ShoppingBag, ShoppingBasket, Store, UserRound } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useHealthCheck } from '@workspace/api-client-react';
 import { useCart } from '@/lib/cart';
@@ -64,7 +64,17 @@ export function MarketShell({ children }: { children: ReactNode }) {
               {count > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground" data-testid="text-cart-count">{count}</span>}
             </Link>
             {user ? (
-              <button onClick={() => void signOut()} className="inline-flex items-center justify-center rounded-lg bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/85" aria-label="Log out" title="Log out" data-testid="button-account"><LogOut size={18} /></button>
+              <div className="flex items-center gap-2">
+                {user.role === 'admin' && (
+                  <Link href="/admin" className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-extrabold text-accent-foreground transition-transform hover:scale-105" data-testid="link-header-admin">
+                    <ShieldCheck size={15} /> Admin
+                  </Link>
+                )}
+                <Link href="/account" className="inline-flex items-center justify-center rounded-lg bg-secondary/20 p-2 text-primary-foreground transition-colors hover:bg-secondary/30" title={user.name || user.email} data-testid="link-header-account">
+                  <UserRound size={18} />
+                </Link>
+                <button onClick={() => void signOut()} className="inline-flex items-center justify-center rounded-lg bg-secondary p-2 text-secondary-foreground transition-colors hover:bg-secondary/85" aria-label="Log out" title="Log out" data-testid="button-account"><LogOut size={18} /></button>
+              </div>
             ) : (
               <>
                 <Link href="/sign-in" className="inline-flex rounded-lg px-1.5 py-2 text-[10px] font-bold text-primary-foreground transition-colors hover:bg-secondary/15 sm:px-2 sm:text-sm" data-testid="button-login">Login</Link>
@@ -80,7 +90,11 @@ export function MarketShell({ children }: { children: ReactNode }) {
             <Link href="/products?category=electronics" className="shrink-0 hover:text-primary">Electronics</Link>
             <Link href="/products?category=fashion" className="shrink-0 hover:text-primary">Fashion</Link>
             <Link href="/products?category=home" className="shrink-0 hover:text-primary">Home & Living</Link>
-            <Link href="/seller" className="ml-auto inline-flex shrink-0 items-center gap-2 hover:text-primary"><Store size={14} /> Sell on BOLOBAN SHOP</Link>
+            {user?.role === 'admin' ? (
+              <Link href="/admin" className="ml-auto inline-flex shrink-0 items-center gap-2 text-primary hover:underline font-extrabold" data-testid="link-subheader-admin"><ShieldCheck size={14} /> Admin Dashboard</Link>
+            ) : (
+              <Link href="/seller" className="ml-auto inline-flex shrink-0 items-center gap-2 hover:text-primary"><Store size={14} /> Sell on BOLOBAN SHOP</Link>
+            )}
           </div>
         </div>
       </header>

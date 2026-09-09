@@ -2,7 +2,7 @@
 
 A Bangladesh-focused multi-vendor ecommerce marketplace for discovering products, managing a cart, and placing delivery orders. Browse categories, search and sort products, view product details and reviews, save items to a persistent cart, and check out with cash-on-delivery / bKash / Nagad.
 
-Live at: <https://bengaliislamicinstitute.com/> (after first deploy).
+Live at: <https://boloban.shop/>
 
 ## Stack
 
@@ -19,13 +19,13 @@ Live at: <https://bengaliislamicinstitute.com/> (after first deploy).
 artifacts/
   bazarhub/        # React marketplace frontend (@workspace/bazarhub)
   api-server/      # Express API server (@workspace/api-server)
-  mockup-sandbox/  # Misc
+  mockup-sandbox/  # UI component sandbox / mockup preview
 lib/
   db/              # Drizzle schema + DB client (@workspace/db)
   api-zod/         # Zod request/response schemas (@workspace/api-zod)
   api-spec/        # OpenAPI source of truth
   api-client-react/# Generated React Query hooks (@workspace/api-client-react)
-scripts/           # Workspace scripts
+scripts/           # Workspace scripts (hello, build-sitemap)
 .github/workflows/ # CI
 ```
 
@@ -51,6 +51,43 @@ DATABASE_URL='mysql://root:root@localhost:3306/bazarhub' \
 The dev server is fully self-contained — no external auth, no service
 containers. Sign up a new account at `/sign-up`, or seed the demo
 users (see [Demo credentials](#demo-credentials)).
+
+### `start-server.sh` options
+
+```bash
+./start-server.sh           # build + start both servers (default)
+./start-server.sh --no-build  # skip the esbuild rebuild
+./start-server.sh --api     # only the api-server (port 5000)
+./start-server.sh --web     # only the bazarhub frontend (port 5173)
+```
+
+### Environment variables
+
+**Root `.env`** (for local development):
+
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `mysql://root:root@localhost:3306/bazarhub` | MySQL connection string |
+| `PORT` | `5000` | API server port |
+
+**API server (`artifacts/api-server/.env`)**:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | MySQL connection string |
+| `PORT` | Yes | API server port (default 8080 in production) |
+| `NODE_ENV` | No | `development` or `production` |
+| `DEV_SEED_KEY` | No | Secret for `POST /api/dev/seed-users` endpoint |
+| `SESSION_TTL_MS` | No | Session cookie maxAge in ms (default 30 days) |
+| `CLERK_DEV_BYPASS` | No | Set to `true` to bypass Clerk auth in dev |
+
+**Frontend (`artifacts/bazarhub/.env`)**:
+
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `5173` | Vite dev server port |
+| `BASE_PATH` | `/` | Base path for the app |
+| `VITE_CLERK_DEV_BYPASS` | `true` | Bypass Clerk auth in dev |
 
 ## Auth
 
@@ -84,6 +121,15 @@ The seed endpoint is gated by the `DEV_SEED_KEY` env var (set via
 cPanel in production). It is idempotent — running it again will mark
 existing users as `"exists"` and only create missing ones.
 
+## Scripts
+
+The `scripts/` package contains workspace utilities:
+
+```bash
+pnpm --filter @workspace/scripts run hello       # Example script
+pnpm --filter @workspace/scripts run build-sitemap  # Generate sitemap.xml for the frontend
+```
+
 ## Tests
 
 ```bash
@@ -107,6 +153,23 @@ Production deployment is via FTP to a cPanel-style shared host. See
 2. Uploads the bazarhub static build to the FTP webroot.
 3. Uploads the api-server's bundled `dist/` to `api/` on the server.
 4. Writes a fresh `api/.env` with the production MySQL credentials.
+
+### `deploy.sh` options (via environment variables)
+
+```bash
+# Required (or set in .env):
+FTP_HOST=ftp.bengaliislamicinstitute.com
+FTP_USER=deploy@boloban.shop
+FTP_PASS=deploy@boloban.shop
+
+# Optional:
+FTP_PORT=21              # FTP port
+FTP_DIR=/                # Remote web root
+API_DIR=api              # Remote subdir for the api-server
+SKIP_BUILD=0             # Set to 1 to skip rebuilding
+SKIP_FRONTEND=0          # Set to 1 to skip the frontend upload
+SKIP_API=0               # Set to 1 to skip the api-server upload
+```
 
 After the first deploy, log into cPanel → **Setup Node.js App**,
 click **RESTART** to start the app, and add the env vars
