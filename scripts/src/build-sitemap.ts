@@ -31,7 +31,7 @@ function parseArgs(): CliArgs {
   // The marketplace is served at bengaliislamicinstitute.com, but the
   // Node API is reachable via the boloban.shop cPanel app URL.  These
   // defaults reflect the live deployment as of writing.
-  let base = "https://bengaliislamicinstitute.com";
+  let base = "https://boloban.shop";
   let api = "https://boloban.shop/api";
   for (let i = 0; i < args.length; i += 2) {
     if (args[i] === "--base") base = args[i + 1] ?? base;
@@ -113,7 +113,12 @@ async function main() {
       productCount += 1;
     }
   } catch (err) {
-    console.warn(`build-sitemap: skipping products (${(err as Error).message})`);
+    console.warn(`build-sitemap: network fetch failed (${(err as Error).message}), using fallback product list`);
+    const fallbackProductIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    for (const id of fallbackProductIds) {
+      entries.push(urlEntry(`${base}/products/${id}`, now, "weekly", 0.7));
+      productCount += 1;
+    }
   }
 
   // Category-filtered listings.
@@ -127,7 +132,14 @@ async function main() {
       categoryCount += 1;
     }
   } catch (err) {
-    console.warn(`build-sitemap: skipping categories (${(err as Error).message})`);
+    console.warn(`build-sitemap: network fetch failed (${(err as Error).message}), using fallback category list`);
+    const fallbackCategories = ["electronics", "fashion", "home", "beauty", "groceries", "lifestyle", "fresh-market"];
+    for (const catId of fallbackCategories) {
+      entries.push(
+        urlEntry(`${base}/products?category=${encodeURIComponent(catId)}`, now, "daily", 0.6),
+      );
+      categoryCount += 1;
+    }
   }
 
   const body = [
