@@ -347,3 +347,4 @@ export function AdminDataTable<T extends Record<string, any>>({
     </div>
   );
 }
+

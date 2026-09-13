@@ -107,6 +107,7 @@ export function AdminDashboard() {
     category: 'electronics',
     price: '',
     originalPrice: '',
+    discountRate: '0',
     stock: '25',
     seller: 'BOLOBAN Direct',
     badge: 'Popular',
@@ -239,11 +240,18 @@ export function AdminDashboard() {
     }
     setSubmittingProduct(true);
     try {
+      const priceVal = Number(productForm.price);
+      const discountVal = Number(productForm.discountRate || 0);
+      const calculatedOriginalPrice = discountVal > 0 && discountVal < 100
+        ? Math.round(priceVal / (1 - discountVal / 100))
+        : Number(productForm.originalPrice || priceVal);
+
       const payload = {
         name: productForm.name,
         category: productForm.category,
-        price: Number(productForm.price),
-        originalPrice: Number(productForm.originalPrice || productForm.price),
+        price: priceVal,
+        originalPrice: calculatedOriginalPrice,
+        discount: discountVal,
         stock: Number(productForm.stock),
         seller: productForm.seller,
         badge: productForm.badge,
@@ -295,11 +303,18 @@ export function AdminDashboard() {
 
   const openEditProduct = (p: any) => {
     setEditingProductId(p.id);
+    const computedDiscount = p.discount
+      ? String(p.discount)
+      : (p.originalPrice && p.originalPrice > p.price)
+      ? String(Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100))
+      : '0';
+
     setProductForm({
       name: p.name,
       category: p.category,
       price: String(p.price),
       originalPrice: String(p.originalPrice || p.price),
+      discountRate: computedDiscount,
       stock: String(p.stock),
       seller: p.seller || 'BOLOBAN Direct',
       badge: p.badge || '',
@@ -852,7 +867,30 @@ export function AdminDashboard() {
                   sortable: true,
                   accessorKey: 'price',
                   exportValue: (p: any) => `৳${p.price}`,
-                  cell: (p: any) => <span className="font-bold text-emerald-500">৳{p.price}</span>,
+                  cell: (p: any) => (
+                    <div>
+                      <span className="font-bold text-emerald-500">৳{p.price}</span>
+                      {p.originalPrice && p.originalPrice > p.price && (
+                        <span className={`block text-[10px] line-through ${textSub}`}>৳{p.originalPrice}</span>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  header: 'Discount',
+                  sortable: true,
+                  accessorKey: 'discount',
+                  exportValue: (p: any) => p.discount ? `${p.discount}% OFF` : 'No Discount',
+                  cell: (p: any) => {
+                    const discountVal = p.discount || (p.originalPrice && p.originalPrice > p.price ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : 0);
+                    return discountVal > 0 ? (
+                      <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-[10px] font-bold text-rose-500">
+                        {discountVal}% OFF
+                      </span>
+                    ) : (
+                      <span className={`text-[10px] ${textSub}`}>—</span>
+                    );
+                  },
                 },
                 {
                   header: 'Stock',
@@ -1238,26 +1276,49 @@ export function AdminDashboard() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-bold">Category</label>
+                <select
+                  value={productForm.category}
+                  onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                >
+                  {(categoriesQuery.data ?? []).map((cat: any) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold">Category</label>
-                  <select
-                    value={productForm.category}
-                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
-                  >
-                    {(categoriesQuery.data ?? []).map((cat: any) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold">Price (৳)</label>
+                  <label className="block font-bold">Selling Price (৳)</label>
                   <input
                     type="number"
                     required
                     value={productForm.price}
                     onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold">Discount Rate (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="99"
+                    value={productForm.discountRate}
+                    onChange={(e) => setProductForm({ ...productForm, discountRate: e.target.value })}
+                    placeholder="e.g. 15"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold">Original Price (৳)</label>
+                  <input
+                    type="number"
+                    value={productForm.originalPrice}
+                    onChange={(e) => setProductForm({ ...productForm, originalPrice: e.target.value })}
+                    placeholder="Auto-calculated"
                     className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   />
                 </div>
@@ -1279,9 +1340,21 @@ export function AdminDashboard() {
                     type="text"
                     value={productForm.badge}
                     onChange={(e) => setProductForm({ ...productForm, badge: e.target.value })}
+                    placeholder="e.g. Popular or Hot"
                     className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block font-bold">Product Description</label>
+                <textarea
+                  rows={3}
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                  placeholder="Detailed product features, specifications, or usage instructions..."
+                  className={`mt-1 w-full rounded-xl border p-3 outline-none ${inputBg}`}
+                />
               </div>
 
               <div>
