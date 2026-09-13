@@ -1154,16 +1154,19 @@ export function AdminDashboard() {
                   />
                 </div>
 
-                <div className={`rounded-xl border p-4 ${cardInnerBg}`}>
+                <div className={`rounded-xl border p-4 ${isDark ? 'border-slate-800 bg-slate-950/80 text-white' : 'border-slate-200 bg-slate-50 text-slate-900'}`}>
                   <label className="block font-bold mb-1">Change Password (Optional)</label>
                   <p className={`text-[11px] mb-2 ${textSub}`}>Leave blank to keep your current password intact</p>
                   <input
                     type="password"
+                    autoComplete="new-password"
                     minLength={8}
                     value={profileForm.password}
                     onChange={(e) => setProfileForm({ ...profileForm, password: e.target.value })}
                     placeholder="New password (8+ characters)"
-                    className={`h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    className={`h-10 w-full rounded-xl border px-3 outline-none transition-colors ${
+                      isDark ? 'border-slate-800 bg-slate-900 text-white placeholder-slate-500 focus:border-amber-400' : 'border-slate-300 bg-white text-slate-900 focus:border-amber-500'
+                    }`}
                   />
                 </div>
 
