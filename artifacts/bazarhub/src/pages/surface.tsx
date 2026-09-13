@@ -1,12 +1,11 @@
-import { BarChart3, ChevronRight, CircleCheck, Package, Store, Users, WalletCards } from 'lucide-react';
-import { Link } from 'wouter';
+import { AdminDashboard } from '@/pages/admin-dashboard';
 
 export function SellerSurface() {
   return <SurfaceLayout kind="seller" />;
 }
 
 export function AdminSurface() {
-  return <SurfaceLayout kind="admin" />;
+  return <AdminDashboard />;
 }
 
 function SurfaceLayout({ kind }: { kind: 'seller' | 'admin' }) {
