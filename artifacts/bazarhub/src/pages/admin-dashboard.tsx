@@ -26,6 +26,7 @@ import {
   Sun,
   Moon,
   Trash2,
+  User,
   Users,
   X
 } from 'lucide-react';
@@ -44,11 +45,9 @@ interface AdminStats {
 
 interface UserItem {
   id: number;
-  email: string;
   name: string;
-  phone: string;
+  email: string;
   role: string;
-  createdAt: string;
 }
 
 interface ColorItem {
@@ -64,8 +63,8 @@ interface SizeItem {
 }
 
 export function AdminDashboard() {
-  const { user, status, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'categories' | 'colors' | 'sizes' | 'orders' | 'users'>('overview');
+  const { user, status, signOut, refreshUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'categories' | 'colors' | 'sizes' | 'orders' | 'users' | 'profile'>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -127,6 +126,58 @@ export function AdminDashboard() {
   // Size Modal State
   const [isAddSizeOpen, setIsAddSizeOpen] = useState(false);
   const [newSize, setNewSize] = useState({ label: '', category: 'Apparel' });
+
+  // Admin Profile State
+  const [profileForm, setProfileForm] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    imageUrl: user?.imageUrl || '',
+    password: '',
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        imageUrl: user.imageUrl || '',
+        password: '',
+      });
+    }
+  }, [user]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: profileForm.name,
+          email: profileForm.email,
+          phone: profileForm.phone,
+          imageUrl: profileForm.imageUrl,
+          ...(profileForm.password ? { password: profileForm.password } : {}),
+        }),
+      });
+      if (res.ok) {
+        toast({ title: 'Profile Updated', description: 'Admin profile information updated successfully.' });
+        setProfileForm((prev) => ({ ...prev, password: '' }));
+        await refreshUser();
+      } else {
+        const data = await res.json();
+        toast({ title: 'Update Failed', description: data.error || 'Failed to update profile.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Could not connect to server.', variant: 'destructive' });
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const fetchStats = async () => {
     setStatsLoading(true);
@@ -553,6 +604,17 @@ export function AdminDashboard() {
             }`}
           >
             <Users size={18} /> Platform Accounts
+          </button>
+
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-3 transition-colors ${
+              activeTab === 'profile'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <User size={18} /> Admin Profile
           </button>
         </div>
 
@@ -981,6 +1043,95 @@ export function AdminDashboard() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {/* ------------------- 8. ADMIN PROFILE TAB ------------------- */}
+          {activeTab === 'profile' && (
+            <div className={`max-w-2xl rounded-2xl border p-6 md:p-8 ${cardBg}`}>
+              <div className="mb-6 flex items-center gap-4">
+                <img
+                  src={profileForm.imageUrl || user?.imageUrl || 'https://api.dicebear.com/9.x/initials/svg?seed=Admin&backgroundColor=f57224'}
+                  alt={profileForm.name}
+                  className="h-16 w-16 rounded-2xl object-cover ring-2 ring-amber-500/50 shadow-md"
+                />
+                <div>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Admin Profile Settings</h2>
+                  <p className={`text-xs ${textSub}`}>Manage your personal credentials, contact info & security</p>
+                </div>
+              </div>
+
+              <form onSubmit={(e) => void handleUpdateProfile(e)} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                    placeholder="Admin Full Name"
+                    className={`h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-bold mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      value={profileForm.email}
+                      onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                      placeholder="admin@boloban.local"
+                      className={`h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Phone Number</label>
+                    <input
+                      type="text"
+                      value={profileForm.phone}
+                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                      placeholder="+880 1700 000000"
+                      className={`h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold mb-1">Profile Photo (Image URL)</label>
+                  <input
+                    type="url"
+                    value={profileForm.imageUrl}
+                    onChange={(e) => setProfileForm({ ...profileForm, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className={`h-10 w-full rounded-xl border px-3 font-mono-brand text-[11px] outline-none ${inputBg}`}
+                  />
+                </div>
+
+                <div className={`rounded-xl border p-4 ${cardInnerBg}`}>
+                  <label className="block font-bold mb-1">Change Password (Optional)</label>
+                  <p className={`text-[11px] mb-2 ${textSub}`}>Leave blank to keep your current password intact</p>
+                  <input
+                    type="password"
+                    minLength={8}
+                    value={profileForm.password}
+                    onChange={(e) => setProfileForm({ ...profileForm, password: e.target.value })}
+                    placeholder="New password (8+ characters)"
+                    className={`h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="rounded-xl bg-amber-500 px-6 py-2.5 font-bold text-slate-950 hover:bg-amber-400 disabled:opacity-50"
+                  >
+                    {savingProfile ? 'Saving Changes...' : 'Save Profile Changes'}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </main>

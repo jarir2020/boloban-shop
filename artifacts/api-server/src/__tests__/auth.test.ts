@@ -225,6 +225,30 @@ describe("GET /api/auth/me", () => {
   });
 });
 
+describe("PATCH /api/auth/profile", () => {
+  it("updates user profile fields successfully", async () => {
+    const { sessionId } = await createTestUser("profile@boloban.local", "Password123!");
+    const res = await request
+      .patch("/api/auth/profile")
+      .set("Cookie", `${SESSION_COOKIE}=${sessionId}`)
+      .send({
+        name: "Updated Admin Name",
+        phone: "01700000000",
+        imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.name).toBe("Updated Admin Name");
+    expect(res.body.user.phone).toBe("01700000000");
+    expect(res.body.user.imageUrl).toBe("https://images.unsplash.com/photo-1534528741775-53994a69daeb");
+  });
+
+  it("returns 401 if unauthenticated", async () => {
+    const res = await request.patch("/api/auth/profile").send({ name: "Fail" });
+    expect(res.status).toBe(401);
+  });
+});
+
 describe("POST /api/dev/seed-users", () => {
   it("rejects requests without the seed key", async () => {
     const res = await request.post("/api/dev/seed-users");

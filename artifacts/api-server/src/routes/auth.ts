@@ -164,6 +164,55 @@ router.get("/me", async (_req, res) => {
   res.status(200).json(AuthResponse.parse({ user: _req.user }));
 });
 
+router.patch("/profile", async (req, res) => {
+  await ensureAuthTables();
+  if (!req.user) {
+    res.status(401).json({ error: "Not signed in" });
+    return;
+  }
+
+  const { name, email, phone, imageUrl, password } = req.body ?? {};
+
+  const updates: Record<string, any> = {};
+
+  if (typeof name === "string" && name.trim()) {
+    updates.name = name.trim();
+  }
+  if (typeof phone === "string") {
+    updates.phone = phone.trim();
+  }
+  if (typeof imageUrl === "string" && imageUrl.trim()) {
+    updates.imageUrl = imageUrl.trim();
+  }
+  if (typeof email === "string" && email.trim() && email.toLowerCase().trim() !== req.user.email) {
+    const newEmail = email.toLowerCase().trim();
+    const existing = await findUserByEmail(newEmail);
+    if (existing && existing.id !== req.user.id) {
+      res.status(409).json({ error: "An account with that email already exists" });
+      return;
+    }
+    updates.email = newEmail;
+  }
+  if (typeof password === "string" && password.length >= 8) {
+    updates.passwordHash = await hashPassword(password);
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await db.update(usersTable).set(updates).where(eq(usersTable.id, req.user.id));
+  }
+
+  const updatedUsers = await db.select().from(usersTable).where(eq(usersTable.id, req.user.id)).limit(1);
+  const updatedUser = updatedUsers[0];
+
+  if (!updatedUser) {
+    res.status(500).json({ error: "User profile update failed" });
+    return;
+  }
+
+  const publicUser: PublicUser = toPublicUser(updatedUser);
+  res.status(200).json(AuthResponse.parse({ user: publicUser }));
+});
+
 function defaultAvatar(name: string): string {
   const seed = encodeURIComponent(name.trim() || "BOLOBAN");
   return `https://api.dicebear.com/9.x/initials/svg?seed=${seed}&backgroundColor=f57224`;
