@@ -33,6 +33,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useListOrders, useListProducts, useListCategories } from '@workspace/api-client-react';
 import { toast } from '@/hooks/use-toast';
+import { AdminDataTable, ColumnDef } from '@/components/admin-data-table';
 
 interface AdminStats {
   totalRevenue: number;
@@ -812,283 +813,316 @@ export function AdminDashboard() {
 
           {/* ------------------- 2. PRODUCTS TAB (CRUD + IMAGES) ------------------- */}
           {activeTab === 'products' && (
-            <div className={`rounded-2xl border p-6 ${cardBg}`}>
-              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className={`font-display text-2xl ${textHead}`}>Products Management</h2>
-                  <p className={`text-xs ${textSub}`}>Add, edit, or remove products and manage image galleries</p>
-                </div>
-                <div className="flex gap-2">
-                  <div className="relative">
-                    <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textSub}`} />
-                    <input
-                      type="text"
-                      value={productSearch}
-                      onChange={(e) => setProductSearch(e.target.value)}
-                      placeholder="Search products..."
-                      className={`h-10 rounded-xl border pl-9 pr-3 text-xs outline-none ${inputBg}`}
-                    />
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEditingProductId(null);
-                      setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
-                      setIsAddProductOpen(true);
-                    }}
-                    className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400"
-                  >
-                    <PlusCircle size={16} /> Add Product
-                  </button>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className={`border-b ${tableHeaderBg}`}>
-                      <th className="p-3 font-bold">Image & Product</th>
-                      <th className="p-3 font-bold">Category</th>
-                      <th className="p-3 font-bold">Price</th>
-                      <th className="p-3 font-bold">Stock</th>
-                      <th className="p-3 font-bold">Seller</th>
-                      <th className="p-3 font-bold">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
-                    {filteredProducts.map((p: any) => (
-                      <tr key={p.id} className={isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}>
-                        <td className="p-3">
-                          <div className="flex items-center gap-3">
-                            <img src={p.image} alt={p.name} className={`h-12 w-12 shrink-0 rounded-xl border object-cover ${isDark ? 'border-slate-700' : 'border-slate-200'}`} />
-                            <div>
-                              <strong className={`block font-bold ${textHead}`}>{p.name}</strong>
-                              <span className={`text-[10px] ${textSub}`}>#{p.id} · {p.badge || 'Standard'}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-3 font-bold uppercase text-amber-500">{p.category}</td>
-                        <td className="p-3 font-bold text-emerald-500">৳{p.price}</td>
-                        <td className="p-3">
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${p.stock < 10 ? 'bg-amber-500/20 text-amber-600' : 'bg-emerald-500/20 text-emerald-600'}`}>
-                            {p.stock} in stock
-                          </span>
-                        </td>
-                        <td className={`p-3 ${textSub}`}>{p.seller}</td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-2">
-                            <button onClick={() => openEditProduct(p)} className={`rounded-lg border p-2 ${isDark ? 'border-slate-700 text-slate-300 hover:border-amber-400 hover:text-amber-400' : 'border-slate-300 text-slate-700 hover:border-amber-500 hover:text-amber-600'}`} title="Edit Product">
-                              <Edit3 size={15} />
-                            </button>
-                            <button onClick={() => void handleDeleteProduct(p.id, p.name)} className="rounded-lg border border-slate-700 p-2 text-rose-500 hover:border-rose-500 hover:bg-rose-500/10" title="Delete Product">
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <AdminDataTable
+              title="Products Management"
+              subtitle="Add, edit, or remove products and manage image galleries"
+              data={productsQuery.data ?? []}
+              isDark={isDark}
+              onAddClick={() => {
+                setEditingProductId(null);
+                setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
+                setIsAddProductOpen(true);
+              }}
+              addLabel="Add Product"
+              searchPlaceholder="Search products by name, seller, category..."
+              columns={[
+                {
+                  header: 'Image & Product',
+                  sortable: true,
+                  accessorKey: 'name',
+                  exportValue: (p: any) => p.name,
+                  cell: (p: any) => (
+                    <div className="flex items-center gap-3">
+                      <img src={p.image} alt={p.name} className={`h-12 w-12 shrink-0 rounded-xl border object-cover ${isDark ? 'border-slate-700' : 'border-slate-200'}`} />
+                      <div>
+                        <strong className={`block font-bold ${textHead}`}>{p.name}</strong>
+                        <span className={`text-[10px] ${textSub}`}>#{p.id} · {p.badge || 'Standard'}</span>
+                      </div>
+                    </div>
+                  ),
+                },
+                {
+                  header: 'Category',
+                  sortable: true,
+                  accessorKey: 'category',
+                  cell: (p: any) => <span className="font-bold uppercase text-amber-500">{p.category}</span>,
+                },
+                {
+                  header: 'Price',
+                  sortable: true,
+                  accessorKey: 'price',
+                  exportValue: (p: any) => `৳${p.price}`,
+                  cell: (p: any) => <span className="font-bold text-emerald-500">৳{p.price}</span>,
+                },
+                {
+                  header: 'Stock',
+                  sortable: true,
+                  accessorKey: 'stock',
+                  exportValue: (p: any) => `${p.stock} in stock`,
+                  cell: (p: any) => (
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${p.stock < 10 ? 'bg-amber-500/20 text-amber-600' : 'bg-emerald-500/20 text-emerald-600'}`}>
+                      {p.stock} in stock
+                    </span>
+                  ),
+                },
+                {
+                  header: 'Seller',
+                  sortable: true,
+                  accessorKey: 'seller',
+                  cell: (p: any) => <span className={textSub}>{p.seller}</span>,
+                },
+                {
+                  header: 'Actions',
+                  cell: (p: any) => (
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => openEditProduct(p)} className={`rounded-lg border p-2 ${isDark ? 'border-slate-700 text-slate-300 hover:border-amber-400 hover:text-amber-400' : 'border-slate-300 text-slate-700 hover:border-amber-500 hover:text-amber-600'}`} title="Edit Product">
+                        <Edit3 size={15} />
+                      </button>
+                      <button onClick={() => void handleDeleteProduct(p.id, p.name)} className="rounded-lg border border-slate-700 p-2 text-rose-500 hover:border-rose-500 hover:bg-rose-500/10" title="Delete Product">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           )}
 
           {/* ------------------- 3. CATEGORIES TAB (CRUD) ------------------- */}
           {activeTab === 'categories' && (
-            <div className={`rounded-2xl border p-6 ${cardBg}`}>
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className={`font-display text-2xl ${textHead}`}>Categories Management</h2>
-                  <p className={`text-xs ${textSub}`}>Create, view, and remove product categories</p>
-                </div>
-                <button onClick={() => setIsAddCategoryOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400">
-                  <PlusCircle size={16} /> New Category
-                </button>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {(categoriesQuery.data ?? []).map((cat: any) => (
-                  <div key={cat.id} className={`flex items-center justify-between rounded-2xl border p-4 ${cardInnerBg}`}>
-                    <div className="flex items-center gap-3">
-                      <span className={`flex h-10 w-10 items-center justify-center rounded-xl font-bold text-amber-500 ${isDark ? 'bg-slate-800' : 'bg-white border border-slate-200'}`}>{cat.icon || '◒'}</span>
-                      <div>
-                        <strong className={`block text-sm ${textHead}`}>{cat.name}</strong>
-                        <span className={`text-xs ${textSub}`}>{cat.nameBn} · ID: <code className="font-mono-brand text-amber-500">{cat.id}</code></span>
-                      </div>
-                    </div>
-                    <button onClick={() => void handleDeleteCategory(cat.id, cat.name)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
+            <AdminDataTable
+              title="Categories Management"
+              subtitle="Create, view, and remove product categories"
+              data={categoriesQuery.data ?? []}
+              isDark={isDark}
+              onAddClick={() => setIsAddCategoryOpen(true)}
+              addLabel="New Category"
+              searchPlaceholder="Search categories..."
+              columns={[
+                {
+                  header: 'Category ID',
+                  sortable: true,
+                  accessorKey: 'id',
+                  cell: (c: any) => <code className="font-mono-brand font-bold text-amber-500">{c.id}</code>,
+                },
+                {
+                  header: 'Icon',
+                  cell: (c: any) => (
+                    <span className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold text-amber-500 ${isDark ? 'bg-slate-800' : 'bg-slate-100 border border-slate-200'}`}>
+                      {c.icon || '◒'}
+                    </span>
+                  ),
+                },
+                {
+                  header: 'Category Name (EN)',
+                  sortable: true,
+                  accessorKey: 'name',
+                  cell: (c: any) => <strong className={`font-bold ${textHead}`}>{c.name}</strong>,
+                },
+                {
+                  header: 'Category Name (BN)',
+                  sortable: true,
+                  accessorKey: 'nameBn',
+                  cell: (c: any) => <span className={textSub}>{c.nameBn}</span>,
+                },
+                {
+                  header: 'Actions',
+                  cell: (c: any) => (
+                    <button onClick={() => void handleDeleteCategory(c.id, c.name)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
                       <Trash2 size={16} />
                     </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  ),
+                },
+              ]}
+            />
           )}
 
           {/* ------------------- 4. COLORS TAB (CRUD) ------------------- */}
           {activeTab === 'colors' && (
-            <div className={`rounded-2xl border p-6 ${cardBg}`}>
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className={`font-display text-2xl ${textHead}`}>Product Color Variants</h2>
-                  <p className={`text-xs ${textSub}`}>Manage available color options for products</p>
-                </div>
-                <button onClick={() => setIsAddColorOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400">
-                  <PlusCircle size={16} /> Add Color
-                </button>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {colorsList.map((c) => (
-                  <div key={c.id} className={`flex items-center justify-between rounded-2xl border p-4 ${cardInnerBg}`}>
-                    <div className="flex items-center gap-3">
-                      <span className="h-8 w-8 rounded-full border-2 border-slate-400 shadow" style={{ backgroundColor: c.hex }} />
-                      <div>
-                        <strong className={`block text-sm ${textHead}`}>{c.name}</strong>
-                        <span className={`font-mono-brand text-xs ${textSub}`}>{c.hex}</span>
-                      </div>
-                    </div>
+            <AdminDataTable
+              title="Product Color Variants"
+              subtitle="Manage available color options for products"
+              data={colorsList}
+              isDark={isDark}
+              onAddClick={() => setIsAddColorOpen(true)}
+              addLabel="Add Color"
+              searchPlaceholder="Search colors..."
+              columns={[
+                {
+                  header: 'Color ID',
+                  sortable: true,
+                  accessorKey: 'id',
+                  cell: (c: any) => <span className={`font-mono-brand ${textSub}`}>#{c.id}</span>,
+                },
+                {
+                  header: 'Swatch',
+                  cell: (c: any) => <span className="block h-7 w-7 rounded-full border-2 border-slate-400 shadow" style={{ backgroundColor: c.hex }} />,
+                },
+                {
+                  header: 'Color Name',
+                  sortable: true,
+                  accessorKey: 'name',
+                  cell: (c: any) => <strong className={`font-bold ${textHead}`}>{c.name}</strong>,
+                },
+                {
+                  header: 'Hex Code',
+                  sortable: true,
+                  accessorKey: 'hex',
+                  cell: (c: any) => <code className="font-mono-brand text-amber-500">{c.hex}</code>,
+                },
+                {
+                  header: 'Actions',
+                  cell: (c: any) => (
                     <button onClick={() => void handleDeleteColor(c.id, c.name)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
                       <Trash2 size={16} />
                     </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  ),
+                },
+              ]}
+            />
           )}
 
           {/* ------------------- 5. SIZES TAB (CRUD) ------------------- */}
           {activeTab === 'sizes' && (
-            <div className={`rounded-2xl border p-6 ${cardBg}`}>
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className={`font-display text-2xl ${textHead}`}>Product Size Variants</h2>
-                  <p className={`text-xs ${textSub}`}>Manage sizing options (Apparel, Footwear, etc.)</p>
-                </div>
-                <button onClick={() => setIsAddSizeOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400">
-                  <PlusCircle size={16} /> Add Size
-                </button>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {sizesList.map((s) => (
-                  <div key={s.id} className={`flex items-center justify-between rounded-2xl border p-4 ${cardInnerBg}`}>
-                    <div>
-                      <strong className="block text-base font-bold text-amber-500">{s.label}</strong>
-                      <span className={`text-xs ${textSub}`}>{s.category}</span>
-                    </div>
+            <AdminDataTable
+              title="Product Size Variants"
+              subtitle="Manage sizing options (Apparel, Footwear, etc.)"
+              data={sizesList}
+              isDark={isDark}
+              onAddClick={() => setIsAddSizeOpen(true)}
+              addLabel="Add Size"
+              searchPlaceholder="Search sizes..."
+              columns={[
+                {
+                  header: 'Size ID',
+                  sortable: true,
+                  accessorKey: 'id',
+                  cell: (s: any) => <span className={`font-mono-brand ${textSub}`}>#{s.id}</span>,
+                },
+                {
+                  header: 'Size Label',
+                  sortable: true,
+                  accessorKey: 'label',
+                  cell: (s: any) => <strong className="font-bold text-amber-500">{s.label}</strong>,
+                },
+                {
+                  header: 'Category',
+                  sortable: true,
+                  accessorKey: 'category',
+                  cell: (s: any) => <span className={textSub}>{s.category}</span>,
+                },
+                {
+                  header: 'Actions',
+                  cell: (s: any) => (
                     <button onClick={() => void handleDeleteSize(s.id, s.label)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
                       <Trash2 size={16} />
                     </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  ),
+                },
+              ]}
+            />
           )}
 
           {/* ------------------- 6. ORDERS TAB ------------------- */}
           {activeTab === 'orders' && (
-            <div className={`rounded-2xl border p-6 ${cardBg}`}>
-              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className={`font-display text-2xl ${textHead}`}>Orders & Fulfillment</h2>
-                  <p className={`text-xs ${textSub}`}>Track and update customer order status</p>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={orderSearch}
-                    onChange={(e) => setOrderSearch(e.target.value)}
-                    placeholder="Search Order ID, name..."
-                    className={`h-10 rounded-xl border px-3 text-xs outline-none ${inputBg}`}
-                  />
-                  <select
-                    value={orderStatusFilter}
-                    onChange={(e) => setOrderStatusFilter(e.target.value)}
-                    className={`h-10 rounded-xl border px-3 text-xs font-bold outline-none ${inputBg}`}
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className={`border-b ${tableHeaderBg}`}>
-                      <th className="p-3 font-bold">Order ID</th>
-                      <th className="p-3 font-bold">Customer</th>
-                      <th className="p-3 font-bold">Total</th>
-                      <th className="p-3 font-bold">Payment</th>
-                      <th className="p-3 font-bold">Update Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
-                    {filteredOrders.map((o: any) => (
-                      <tr key={o.id} className={isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}>
-                        <td className="p-3 font-mono-brand font-bold text-amber-500">{o.id}</td>
-                        <td className="p-3 font-bold">{o.customerName} <span className={`block text-[10px] ${textSub}`}>{o.phone}</span></td>
-                        <td className="p-3 font-bold text-emerald-500">৳{o.total}</td>
-                        <td className={`p-3 uppercase ${textSub}`}>{o.paymentMethod}</td>
-                        <td className="p-3">
-                          <select
-                            disabled={updatingOrderId === o.id}
-                            value={o.status}
-                            onChange={(e) => void handleUpdateOrderStatus(o.id, e.target.value)}
-                            className={`rounded-lg border px-2.5 py-1 text-xs font-bold outline-none ${inputBg}`}
-                          >
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <AdminDataTable
+              title="Orders & Fulfillment"
+              subtitle="Track and update customer order status"
+              data={ordersQuery.data ?? []}
+              isDark={isDark}
+              searchPlaceholder="Search Order ID, customer name, phone..."
+              columns={[
+                {
+                  header: 'Order ID',
+                  sortable: true,
+                  accessorKey: 'id',
+                  cell: (o: any) => <span className="font-mono-brand font-bold text-amber-500">{o.id}</span>,
+                },
+                {
+                  header: 'Customer',
+                  sortable: true,
+                  accessorKey: 'customerName',
+                  cell: (o: any) => (
+                    <div>
+                      <strong className="block font-bold">{o.customerName}</strong>
+                      <span className={`block text-[10px] ${textSub}`}>{o.phone}</span>
+                    </div>
+                  ),
+                },
+                {
+                  header: 'Total Amount',
+                  sortable: true,
+                  accessorKey: 'total',
+                  exportValue: (o: any) => `৳${o.total}`,
+                  cell: (o: any) => <span className="font-bold text-emerald-500">৳{o.total}</span>,
+                },
+                {
+                  header: 'Payment Method',
+                  sortable: true,
+                  accessorKey: 'paymentMethod',
+                  cell: (o: any) => <span className={`uppercase ${textSub}`}>{o.paymentMethod}</span>,
+                },
+                {
+                  header: 'Update Status',
+                  sortable: true,
+                  accessorKey: 'status',
+                  cell: (o: any) => (
+                    <select
+                      disabled={updatingOrderId === o.id}
+                      value={o.status}
+                      onChange={(e) => void handleUpdateOrderStatus(o.id, e.target.value)}
+                      className={`rounded-lg border px-2.5 py-1 text-xs font-bold outline-none ${inputBg}`}
+                    >
+                      <option value="Processing">Processing</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  ),
+                },
+              ]}
+            />
           )}
 
           {/* ------------------- 7. USERS TAB ------------------- */}
           {activeTab === 'users' && (
-            <div className={`rounded-2xl border p-6 ${cardBg}`}>
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className={`font-display text-2xl ${textHead}`}>Registered Accounts</h2>
-                  <p className={`text-xs ${textSub}`}>Marketplace registered user profiles</p>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className={`border-b ${tableHeaderBg}`}>
-                      <th className="p-3 font-bold">User ID</th>
-                      <th className="p-3 font-bold">Name</th>
-                      <th className="p-3 font-bold">Email</th>
-                      <th className="p-3 font-bold">Role</th>
-                    </tr>
-                  </thead>
-                  <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
-                    {usersList.map((u) => (
-                      <tr key={u.id} className={isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}>
-                        <td className={`p-3 font-mono-brand ${textSub}`}>#{u.id}</td>
-                        <td className={`p-3 font-bold ${textHead}`}>{u.name}</td>
-                        <td className={`p-3 font-mono-brand ${textSub}`}>{u.email}</td>
-                        <td className="p-3">
-                          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-amber-600'}`}>{u.role}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <AdminDataTable
+              title="Registered Accounts"
+              subtitle="Marketplace registered user profiles"
+              data={usersList}
+              isDark={isDark}
+              searchPlaceholder="Search accounts by name or email..."
+              columns={[
+                {
+                  header: 'User ID',
+                  sortable: true,
+                  accessorKey: 'id',
+                  cell: (u: any) => <span className={`font-mono-brand ${textSub}`}>#{u.id}</span>,
+                },
+                {
+                  header: 'Name',
+                  sortable: true,
+                  accessorKey: 'name',
+                  cell: (u: any) => <strong className={`font-bold ${textHead}`}>{u.name}</strong>,
+                },
+                {
+                  header: 'Email',
+                  sortable: true,
+                  accessorKey: 'email',
+                  cell: (u: any) => <span className={`font-mono-brand ${textSub}`}>{u.email}</span>,
+                },
+                {
+                  header: 'Role',
+                  sortable: true,
+                  accessorKey: 'role',
+                  cell: (u: any) => (
+                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-amber-600'}`}>
+                      {u.role}
+                    </span>
+                  ),
+                },
+              ]}
+            />
           )}
 
           {/* ------------------- 8. ADMIN PROFILE TAB ------------------- */}
