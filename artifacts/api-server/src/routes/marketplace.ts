@@ -591,6 +591,123 @@ router.patch("/products/:id", async (req, res) => {
   res.json(productDto(updated));
 });
 
+router.delete("/products/:id", async (req, res) => {
+  await ensureSeeded();
+  const productId = Number(req.params.id);
+  if (isNaN(productId)) {
+    res.status(400).json({ error: "Invalid product ID" });
+    return;
+  }
+  await db.delete(productsTable).where(eq(productsTable.id, productId));
+  res.json({ success: true, id: productId });
+});
+
+// Category CRUD
+router.post("/categories", async (req, res) => {
+  await ensureSeeded();
+  const { id, name, nameBn, icon } = req.body;
+  if (!name) {
+    res.status(400).json({ error: "Category name is required" });
+    return;
+  }
+  const catId = id ? String(id).toLowerCase().replace(/\s+/g, "-") : name.toLowerCase().replace(/\s+/g, "-");
+  await db.insert(categoriesTable).values({
+    id: catId,
+    name: String(name),
+    nameBn: String(nameBn || name),
+    icon: String(icon || "◒"),
+    count: 0,
+  });
+  const [created] = await db.select().from(categoriesTable).where(eq(categoriesTable.id, catId));
+  res.status(201).json(created);
+});
+
+router.patch("/categories/:id", async (req, res) => {
+  await ensureSeeded();
+  const catId = req.params.id;
+  const updates: Record<string, unknown> = {};
+  if (req.body.name !== undefined) updates.name = String(req.body.name);
+  if (req.body.nameBn !== undefined) updates.nameBn = String(req.body.nameBn);
+  if (req.body.icon !== undefined) updates.icon = String(req.body.icon);
+  if (Object.keys(updates).length > 0) {
+    await db.update(categoriesTable).set(updates).where(eq(categoriesTable.id, catId));
+  }
+  const [updated] = await db.select().from(categoriesTable).where(eq(categoriesTable.id, catId));
+  res.json(updated);
+});
+
+router.delete("/categories/:id", async (req, res) => {
+  await ensureSeeded();
+  const catId = req.params.id;
+  await db.delete(categoriesTable).where(eq(categoriesTable.id, catId));
+  res.json({ success: true, id: catId });
+});
+
+// In-memory Store for Colors & Sizes
+let nextColorId = 6;
+let colorList = [
+  { id: 1, name: "Midnight Black", hex: "#000000" },
+  { id: 2, name: "Pure White", hex: "#FFFFFF" },
+  { id: 3, name: "Royal Blue", hex: "#1E40AF" },
+  { id: 4, name: "Crimson Red", hex: "#DC2626" },
+  { id: 5, name: "Emerald Green", hex: "#059669" },
+];
+
+let nextSizeId = 8;
+let sizeList = [
+  { id: 1, label: "S", category: "Apparel" },
+  { id: 2, label: "M", category: "Apparel" },
+  { id: 3, label: "L", category: "Apparel" },
+  { id: 4, label: "XL", category: "Apparel" },
+  { id: 5, label: "40", category: "Footwear" },
+  { id: 6, label: "41", category: "Footwear" },
+  { id: 7, label: "42", category: "Footwear" },
+];
+
+// Color CRUD
+router.get("/colors", (_req, res) => {
+  res.json(colorList);
+});
+
+router.post("/colors", (req, res) => {
+  const { name, hex } = req.body;
+  if (!name || !hex) {
+    res.status(400).json({ error: "Color name and hex code are required" });
+    return;
+  }
+  const newColor = { id: nextColorId++, name: String(name), hex: String(hex) };
+  colorList.push(newColor);
+  res.status(201).json(newColor);
+});
+
+router.delete("/colors/:id", (req, res) => {
+  const id = Number(req.params.id);
+  colorList = colorList.filter((c) => c.id !== id);
+  res.json({ success: true, id });
+});
+
+// Size CRUD
+router.get("/sizes", (_req, res) => {
+  res.json(sizeList);
+});
+
+router.post("/sizes", (req, res) => {
+  const { label, category } = req.body;
+  if (!label) {
+    res.status(400).json({ error: "Size label is required" });
+    return;
+  }
+  const newSize = { id: nextSizeId++, label: String(label), category: String(category || "Apparel") };
+  sizeList.push(newSize);
+  res.status(201).json(newSize);
+});
+
+router.delete("/sizes/:id", (req, res) => {
+  const id = Number(req.params.id);
+  sizeList = sizeList.filter((s) => s.id !== id);
+  res.json({ success: true, id });
+});
+
 router.get("/admin/users", async (_req, res) => {
   await ensureSeeded();
   const users = await db.select({
