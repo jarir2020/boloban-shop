@@ -668,28 +668,34 @@ export function AdminDashboard() {
 
                     <button
                       onClick={() => setIsAddCategoryOpen(true)}
-                      className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 p-3.5 text-xs font-bold text-white hover:border-amber-400"
+                      className={`flex items-center gap-2 rounded-xl border p-3.5 text-xs font-bold transition-colors ${
+                        isDark ? 'border-slate-700 bg-slate-800 text-white hover:border-amber-400' : 'border-slate-300 bg-slate-50 text-slate-900 hover:border-amber-500'
+                      }`}
                     >
-                      <FolderTree size={18} className="text-amber-400" /> Add Category
+                      <FolderTree size={18} className="text-amber-500" /> Add Category
                     </button>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-                  <h3 className="font-display text-xl text-white">Variants Controls</h3>
+                <div className={`rounded-2xl border p-6 ${cardBg}`}>
+                  <h3 className={`font-display text-xl ${textHead}`}>Variants Controls</h3>
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setIsAddColorOpen(true)}
-                      className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 p-3.5 text-xs font-bold text-white hover:border-amber-400"
+                      className={`flex items-center gap-2 rounded-xl border p-3.5 text-xs font-bold transition-colors ${
+                        isDark ? 'border-slate-700 bg-slate-800 text-white hover:border-amber-400' : 'border-slate-300 bg-slate-50 text-slate-900 hover:border-amber-500'
+                      }`}
                     >
-                      <Palette size={18} className="text-rose-400" /> Add Color Swatch
+                      <Palette size={18} className="text-rose-500" /> Add Color Swatch
                     </button>
 
                     <button
                       onClick={() => setIsAddSizeOpen(true)}
-                      className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 p-3.5 text-xs font-bold text-white hover:border-amber-400"
+                      className={`flex items-center gap-2 rounded-xl border p-3.5 text-xs font-bold transition-colors ${
+                        isDark ? 'border-slate-700 bg-slate-800 text-white hover:border-amber-400' : 'border-slate-300 bg-slate-50 text-slate-900 hover:border-amber-500'
+                      }`}
                     >
-                      <Ruler size={18} className="text-blue-400" /> Add Size Option
+                      <Ruler size={18} className="text-blue-500" /> Add Size Option
                     </button>
                   </div>
                 </div>
@@ -699,21 +705,21 @@ export function AdminDashboard() {
 
           {/* ------------------- 2. PRODUCTS TAB (CRUD + IMAGES) ------------------- */}
           {activeTab === 'products' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className={`rounded-2xl border p-6 ${cardBg}`}>
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="font-display text-2xl text-white">Products Management</h2>
-                  <p className="text-xs text-slate-400">Add, edit, or remove products and manage image galleries</p>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Products Management</h2>
+                  <p className={`text-xs ${textSub}`}>Add, edit, or remove products and manage image galleries</p>
                 </div>
                 <div className="flex gap-2">
                   <div className="relative">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textSub}`} />
                     <input
                       type="text"
                       value={productSearch}
                       onChange={(e) => setProductSearch(e.target.value)}
                       placeholder="Search products..."
-                      className="h-10 rounded-xl border border-slate-800 bg-slate-950 pl-9 pr-3 text-xs text-white outline-none focus:border-amber-400"
+                      className={`h-10 rounded-xl border pl-9 pr-3 text-xs outline-none ${inputBg}`}
                     />
                   </div>
                   <button
@@ -732,7 +738,7 @@ export function AdminDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                    <tr className={`border-b ${tableHeaderBg}`}>
                       <th className="p-3 font-bold">Image & Product</th>
                       <th className="p-3 font-bold">Category</th>
                       <th className="p-3 font-bold">Price</th>
@@ -741,32 +747,32 @@ export function AdminDashboard() {
                       <th className="p-3 font-bold">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800">
+                  <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
                     {filteredProducts.map((p: any) => (
-                      <tr key={p.id} className="hover:bg-slate-800/40">
+                      <tr key={p.id} className={isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}>
                         <td className="p-3">
                           <div className="flex items-center gap-3">
-                            <img src={p.image} alt={p.name} className="h-12 w-12 shrink-0 rounded-xl border border-slate-700 object-cover" />
+                            <img src={p.image} alt={p.name} className={`h-12 w-12 shrink-0 rounded-xl border object-cover ${isDark ? 'border-slate-700' : 'border-slate-200'}`} />
                             <div>
-                              <strong className="block font-bold text-slate-100">{p.name}</strong>
-                              <span className="text-[10px] text-slate-400">#{p.id} · {p.badge || 'Standard'}</span>
+                              <strong className={`block font-bold ${textHead}`}>{p.name}</strong>
+                              <span className={`text-[10px] ${textSub}`}>#{p.id} · {p.badge || 'Standard'}</span>
                             </div>
                           </div>
                         </td>
-                        <td className="p-3 font-bold uppercase text-amber-400">{p.category}</td>
-                        <td className="p-3 font-bold text-emerald-400">৳{p.price}</td>
+                        <td className="p-3 font-bold uppercase text-amber-500">{p.category}</td>
+                        <td className="p-3 font-bold text-emerald-500">৳{p.price}</td>
                         <td className="p-3">
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${p.stock < 10 ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${p.stock < 10 ? 'bg-amber-500/20 text-amber-600' : 'bg-emerald-500/20 text-emerald-600'}`}>
                             {p.stock} in stock
                           </span>
                         </td>
-                        <td className="p-3 text-slate-400">{p.seller}</td>
+                        <td className={`p-3 ${textSub}`}>{p.seller}</td>
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            <button onClick={() => openEditProduct(p)} className="rounded-lg border border-slate-700 p-2 text-slate-300 hover:border-amber-400 hover:text-amber-400" title="Edit Product">
+                            <button onClick={() => openEditProduct(p)} className={`rounded-lg border p-2 ${isDark ? 'border-slate-700 text-slate-300 hover:border-amber-400 hover:text-amber-400' : 'border-slate-300 text-slate-700 hover:border-amber-500 hover:text-amber-600'}`} title="Edit Product">
                               <Edit3 size={15} />
                             </button>
-                            <button onClick={() => void handleDeleteProduct(p.id, p.name)} className="rounded-lg border border-slate-700 p-2 text-rose-400 hover:border-rose-500 hover:bg-rose-500/10" title="Delete Product">
+                            <button onClick={() => void handleDeleteProduct(p.id, p.name)} className="rounded-lg border border-slate-700 p-2 text-rose-500 hover:border-rose-500 hover:bg-rose-500/10" title="Delete Product">
                               <Trash2 size={15} />
                             </button>
                           </div>
@@ -781,11 +787,11 @@ export function AdminDashboard() {
 
           {/* ------------------- 3. CATEGORIES TAB (CRUD) ------------------- */}
           {activeTab === 'categories' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className={`rounded-2xl border p-6 ${cardBg}`}>
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-2xl text-white">Categories Management</h2>
-                  <p className="text-xs text-slate-400">Create, view, and remove product categories</p>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Categories Management</h2>
+                  <p className={`text-xs ${textSub}`}>Create, view, and remove product categories</p>
                 </div>
                 <button onClick={() => setIsAddCategoryOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400">
                   <PlusCircle size={16} /> New Category
@@ -794,15 +800,15 @@ export function AdminDashboard() {
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {(categoriesQuery.data ?? []).map((cat: any) => (
-                  <div key={cat.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <div key={cat.id} className={`flex items-center justify-between rounded-2xl border p-4 ${cardInnerBg}`}>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-xl font-bold text-amber-400">{cat.icon || '◒'}</span>
+                      <span className={`flex h-10 w-10 items-center justify-center rounded-xl font-bold text-amber-500 ${isDark ? 'bg-slate-800' : 'bg-white border border-slate-200'}`}>{cat.icon || '◒'}</span>
                       <div>
-                        <strong className="block text-sm text-slate-100">{cat.name}</strong>
-                        <span className="text-xs text-slate-400">{cat.nameBn} · ID: <code className="font-mono-brand text-amber-400">{cat.id}</code></span>
+                        <strong className={`block text-sm ${textHead}`}>{cat.name}</strong>
+                        <span className={`text-xs ${textSub}`}>{cat.nameBn} · ID: <code className="font-mono-brand text-amber-500">{cat.id}</code></span>
                       </div>
                     </div>
-                    <button onClick={() => void handleDeleteCategory(cat.id, cat.name)} className="rounded-lg p-2 text-slate-500 hover:bg-rose-500/10 hover:text-rose-400">
+                    <button onClick={() => void handleDeleteCategory(cat.id, cat.name)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -813,11 +819,11 @@ export function AdminDashboard() {
 
           {/* ------------------- 4. COLORS TAB (CRUD) ------------------- */}
           {activeTab === 'colors' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className={`rounded-2xl border p-6 ${cardBg}`}>
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-2xl text-white">Product Color Variants</h2>
-                  <p className="text-xs text-slate-400">Manage available color options for products</p>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Product Color Variants</h2>
+                  <p className={`text-xs ${textSub}`}>Manage available color options for products</p>
                 </div>
                 <button onClick={() => setIsAddColorOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400">
                   <PlusCircle size={16} /> Add Color
@@ -826,15 +832,15 @@ export function AdminDashboard() {
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {colorsList.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <div key={c.id} className={`flex items-center justify-between rounded-2xl border p-4 ${cardInnerBg}`}>
                     <div className="flex items-center gap-3">
-                      <span className="h-8 w-8 rounded-full border-2 border-slate-700 shadow" style={{ backgroundColor: c.hex }} />
+                      <span className="h-8 w-8 rounded-full border-2 border-slate-400 shadow" style={{ backgroundColor: c.hex }} />
                       <div>
-                        <strong className="block text-sm text-slate-100">{c.name}</strong>
-                        <span className="font-mono-brand text-xs text-slate-400">{c.hex}</span>
+                        <strong className={`block text-sm ${textHead}`}>{c.name}</strong>
+                        <span className={`font-mono-brand text-xs ${textSub}`}>{c.hex}</span>
                       </div>
                     </div>
-                    <button onClick={() => void handleDeleteColor(c.id, c.name)} className="rounded-lg p-2 text-slate-500 hover:bg-rose-500/10 hover:text-rose-400">
+                    <button onClick={() => void handleDeleteColor(c.id, c.name)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -845,11 +851,11 @@ export function AdminDashboard() {
 
           {/* ------------------- 5. SIZES TAB (CRUD) ------------------- */}
           {activeTab === 'sizes' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className={`rounded-2xl border p-6 ${cardBg}`}>
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-2xl text-white">Product Size Variants</h2>
-                  <p className="text-xs text-slate-400">Manage sizing options (Apparel, Footwear, etc.)</p>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Product Size Variants</h2>
+                  <p className={`text-xs ${textSub}`}>Manage sizing options (Apparel, Footwear, etc.)</p>
                 </div>
                 <button onClick={() => setIsAddSizeOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 shadow hover:bg-amber-400">
                   <PlusCircle size={16} /> Add Size
@@ -858,12 +864,12 @@ export function AdminDashboard() {
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {sizesList.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 p-4">
+                  <div key={s.id} className={`flex items-center justify-between rounded-2xl border p-4 ${cardInnerBg}`}>
                     <div>
-                      <strong className="block text-base font-bold text-amber-400">{s.label}</strong>
-                      <span className="text-xs text-slate-400">{s.category}</span>
+                      <strong className="block text-base font-bold text-amber-500">{s.label}</strong>
+                      <span className={`text-xs ${textSub}`}>{s.category}</span>
                     </div>
-                    <button onClick={() => void handleDeleteSize(s.id, s.label)} className="rounded-lg p-2 text-slate-500 hover:bg-rose-500/10 hover:text-rose-400">
+                    <button onClick={() => void handleDeleteSize(s.id, s.label)} className="rounded-lg p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-500">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -874,11 +880,11 @@ export function AdminDashboard() {
 
           {/* ------------------- 6. ORDERS TAB ------------------- */}
           {activeTab === 'orders' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className={`rounded-2xl border p-6 ${cardBg}`}>
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="font-display text-2xl text-white">Orders & Fulfillment</h2>
-                  <p className="text-xs text-slate-400">Track and update customer order status</p>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Orders & Fulfillment</h2>
+                  <p className={`text-xs ${textSub}`}>Track and update customer order status</p>
                 </div>
                 <div className="flex gap-2">
                   <input
@@ -886,12 +892,12 @@ export function AdminDashboard() {
                     value={orderSearch}
                     onChange={(e) => setOrderSearch(e.target.value)}
                     placeholder="Search Order ID, name..."
-                    className="h-10 rounded-xl border border-slate-800 bg-slate-950 px-3 text-xs text-white outline-none focus:border-amber-400"
+                    className={`h-10 rounded-xl border px-3 text-xs outline-none ${inputBg}`}
                   />
                   <select
                     value={orderStatusFilter}
                     onChange={(e) => setOrderStatusFilter(e.target.value)}
-                    className="h-10 rounded-xl border border-slate-800 bg-slate-950 px-3 text-xs text-slate-300 outline-none"
+                    className={`h-10 rounded-xl border px-3 text-xs font-bold outline-none ${inputBg}`}
                   >
                     <option value="all">All Statuses</option>
                     <option value="processing">Processing</option>
@@ -905,7 +911,7 @@ export function AdminDashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                    <tr className={`border-b ${tableHeaderBg}`}>
                       <th className="p-3 font-bold">Order ID</th>
                       <th className="p-3 font-bold">Customer</th>
                       <th className="p-3 font-bold">Total</th>
@@ -913,19 +919,19 @@ export function AdminDashboard() {
                       <th className="p-3 font-bold">Update Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800">
+                  <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
                     {filteredOrders.map((o: any) => (
-                      <tr key={o.id} className="hover:bg-slate-800/40">
-                        <td className="p-3 font-mono-brand font-bold text-amber-400">{o.id}</td>
-                        <td className="p-3 font-bold text-slate-200">{o.customerName} <span className="block text-[10px] text-slate-400">{o.phone}</span></td>
-                        <td className="p-3 font-bold text-emerald-400">৳{o.total}</td>
-                        <td className="p-3 uppercase text-slate-400">{o.paymentMethod}</td>
+                      <tr key={o.id} className={isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}>
+                        <td className="p-3 font-mono-brand font-bold text-amber-500">{o.id}</td>
+                        <td className="p-3 font-bold">{o.customerName} <span className={`block text-[10px] ${textSub}`}>{o.phone}</span></td>
+                        <td className="p-3 font-bold text-emerald-500">৳{o.total}</td>
+                        <td className={`p-3 uppercase ${textSub}`}>{o.paymentMethod}</td>
                         <td className="p-3">
                           <select
                             disabled={updatingOrderId === o.id}
                             value={o.status}
                             onChange={(e) => void handleUpdateOrderStatus(o.id, e.target.value)}
-                            className="rounded-lg border border-slate-700 bg-slate-950 px-2.5 py-1 text-xs font-bold text-amber-400 outline-none"
+                            className={`rounded-lg border px-2.5 py-1 text-xs font-bold outline-none ${inputBg}`}
                           >
                             <option value="Processing">Processing</option>
                             <option value="Shipped">Shipped</option>
@@ -943,32 +949,32 @@ export function AdminDashboard() {
 
           {/* ------------------- 7. USERS TAB ------------------- */}
           {activeTab === 'users' && (
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className={`rounded-2xl border p-6 ${cardBg}`}>
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-2xl text-white">Registered Accounts</h2>
-                  <p className="text-xs text-slate-400">Marketplace registered user profiles</p>
+                  <h2 className={`font-display text-2xl ${textHead}`}>Registered Accounts</h2>
+                  <p className={`text-xs ${textSub}`}>Marketplace registered user profiles</p>
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                    <tr className={`border-b ${tableHeaderBg}`}>
                       <th className="p-3 font-bold">User ID</th>
                       <th className="p-3 font-bold">Name</th>
                       <th className="p-3 font-bold">Email</th>
                       <th className="p-3 font-bold">Role</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800">
+                  <tbody className={`divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-200'}`}>
                     {usersList.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-800/40">
-                        <td className="p-3 font-mono-brand text-slate-400">#{u.id}</td>
-                        <td className="p-3 font-bold text-slate-200">{u.name}</td>
-                        <td className="p-3 font-mono-brand text-slate-300">{u.email}</td>
+                      <tr key={u.id} className={isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}>
+                        <td className={`p-3 font-mono-brand ${textSub}`}>#{u.id}</td>
+                        <td className={`p-3 font-bold ${textHead}`}>{u.name}</td>
+                        <td className={`p-3 font-mono-brand ${textSub}`}>{u.email}</td>
                         <td className="p-3">
-                          <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-400">{u.role}</span>
+                          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-amber-600'}`}>{u.role}</span>
                         </td>
                       </tr>
                     ))}
@@ -983,11 +989,11 @@ export function AdminDashboard() {
       {/* ------------------- ADD / EDIT PRODUCT MODAL (WITH MULTI-IMAGES) ------------------- */}
       {isAddProductOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <form onSubmit={(e) => void handleSaveProduct(e)} className="w-full max-w-xl rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl md:p-8">
-            <h2 className="font-display text-2xl text-white">{editingProductId ? 'Edit Product' : 'Create Product Listing'}</h2>
-            <p className="mt-1 text-xs text-slate-400">Fill in product specifications and image URLs</p>
+          <form onSubmit={(e) => void handleSaveProduct(e)} className={`w-full max-w-xl rounded-3xl border p-6 shadow-2xl md:p-8 ${modalBg}`}>
+            <h2 className={`font-display text-2xl ${textHead}`}>{editingProductId ? 'Edit Product' : 'Create Product Listing'}</h2>
+            <p className={`mt-1 text-xs ${textSub}`}>Fill in product specifications and image URLs</p>
 
-            <div className="mt-6 space-y-3.5 text-xs text-slate-200">
+            <div className={`mt-6 space-y-3.5 text-xs ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
               <div>
                 <label className="block font-bold">Product Name</label>
                 <input
@@ -995,7 +1001,7 @@ export function AdminDashboard() {
                   required
                   value={productForm.name}
                   onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 />
               </div>
 
@@ -1005,7 +1011,7 @@ export function AdminDashboard() {
                   <select
                     value={productForm.category}
                     onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
-                    className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   >
                     {(categoriesQuery.data ?? []).map((cat: any) => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -1019,7 +1025,7 @@ export function AdminDashboard() {
                     required
                     value={productForm.price}
                     onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
-                    className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   />
                 </div>
               </div>
@@ -1031,7 +1037,7 @@ export function AdminDashboard() {
                     type="number"
                     value={productForm.stock}
                     onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
-                    className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   />
                 </div>
                 <div>
@@ -1040,7 +1046,7 @@ export function AdminDashboard() {
                     type="text"
                     value={productForm.badge}
                     onChange={(e) => setProductForm({ ...productForm, badge: e.target.value })}
-                    className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   />
                 </div>
               </div>
@@ -1053,7 +1059,7 @@ export function AdminDashboard() {
                   value={productForm.image}
                   onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
                   placeholder="https://images.unsplash.com/..."
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400 font-mono-brand text-[11px]"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 font-mono-brand text-[11px] outline-none ${inputBg}`}
                 />
               </div>
 
@@ -1064,13 +1070,17 @@ export function AdminDashboard() {
                   value={productForm.additionalImages}
                   onChange={(e) => setProductForm({ ...productForm, additionalImages: e.target.value })}
                   placeholder="https://image2.jpg&#10;https://image3.jpg"
-                  className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-950 p-3 outline-none focus:border-amber-400 font-mono-brand text-[11px]"
+                  className={`mt-1 w-full rounded-xl border p-3 font-mono-brand text-[11px] outline-none ${inputBg}`}
                 />
               </div>
             </div>
 
             <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={() => setIsAddProductOpen(false)} className="rounded-xl border border-slate-800 px-4 py-2.5 text-xs font-bold text-slate-300">
+              <button
+                type="button"
+                onClick={() => setIsAddProductOpen(false)}
+                className={`rounded-xl border px-4 py-2.5 text-xs font-bold ${isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100'}`}
+              >
                 Cancel
               </button>
               <button type="submit" disabled={submittingProduct} className="rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-bold text-slate-950 hover:bg-amber-400">
@@ -1084,8 +1094,8 @@ export function AdminDashboard() {
       {/* ------------------- ADD CATEGORY MODAL ------------------- */}
       {isAddCategoryOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <form onSubmit={(e) => void handleAddCategory(e)} className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-6 text-xs text-white">
-            <h2 className="font-display text-2xl text-white">Create New Category</h2>
+          <form onSubmit={(e) => void handleAddCategory(e)} className={`w-full max-w-md rounded-3xl border p-6 text-xs shadow-2xl ${modalBg}`}>
+            <h2 className={`font-display text-2xl ${textHead}`}>Create New Category</h2>
             <div className="mt-4 space-y-3">
               <div>
                 <label className="block font-bold">Category Name (English)</label>
@@ -1094,7 +1104,7 @@ export function AdminDashboard() {
                   required
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 />
               </div>
               <div>
@@ -1103,12 +1113,16 @@ export function AdminDashboard() {
                   type="text"
                   value={newCategory.nameBn}
                   onChange={(e) => setNewCategory({ ...newCategory, nameBn: e.target.value })}
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 />
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={() => setIsAddCategoryOpen(false)} className="rounded-xl border border-slate-800 px-4 py-2 font-bold text-slate-300">
+              <button
+                type="button"
+                onClick={() => setIsAddCategoryOpen(false)}
+                className={`rounded-xl border px-4 py-2 font-bold ${isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100'}`}
+              >
                 Cancel
               </button>
               <button type="submit" className="rounded-xl bg-amber-500 px-4 py-2 font-bold text-slate-950 hover:bg-amber-400">
@@ -1122,8 +1136,8 @@ export function AdminDashboard() {
       {/* ------------------- ADD COLOR MODAL ------------------- */}
       {isAddColorOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <form onSubmit={(e) => void handleAddColor(e)} className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-6 text-xs text-white">
-            <h2 className="font-display text-2xl text-white">Add Color Variant</h2>
+          <form onSubmit={(e) => void handleAddColor(e)} className={`w-full max-w-md rounded-3xl border p-6 text-xs shadow-2xl ${modalBg}`}>
+            <h2 className={`font-display text-2xl ${textHead}`}>Add Color Variant</h2>
             <div className="mt-4 space-y-3">
               <div>
                 <label className="block font-bold">Color Name</label>
@@ -1133,7 +1147,7 @@ export function AdminDashboard() {
                   value={newColor.name}
                   onChange={(e) => setNewColor({ ...newColor, name: e.target.value })}
                   placeholder="e.g. Midnight Black"
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 />
               </div>
               <div>
@@ -1143,19 +1157,23 @@ export function AdminDashboard() {
                     type="color"
                     value={newColor.hex}
                     onChange={(e) => setNewColor({ ...newColor, hex: e.target.value })}
-                    className="h-10 w-12 rounded-lg border border-slate-800 bg-slate-950 p-1"
+                    className={`h-10 w-12 rounded-lg border p-1 ${isDark ? 'border-slate-800 bg-slate-950' : 'border-slate-300 bg-white'}`}
                   />
                   <input
                     type="text"
                     value={newColor.hex}
                     onChange={(e) => setNewColor({ ...newColor, hex: e.target.value })}
-                    className="h-10 flex-1 rounded-xl border border-slate-800 bg-slate-950 px-3 font-mono-brand outline-none focus:border-amber-400"
+                    className={`h-10 flex-1 rounded-xl border px-3 font-mono-brand outline-none ${inputBg}`}
                   />
                 </div>
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={() => setIsAddColorOpen(false)} className="rounded-xl border border-slate-800 px-4 py-2 font-bold text-slate-300">
+              <button
+                type="button"
+                onClick={() => setIsAddColorOpen(false)}
+                className={`rounded-xl border px-4 py-2 font-bold ${isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100'}`}
+              >
                 Cancel
               </button>
               <button type="submit" className="rounded-xl bg-amber-500 px-4 py-2 font-bold text-slate-950 hover:bg-amber-400">
@@ -1169,8 +1187,8 @@ export function AdminDashboard() {
       {/* ------------------- ADD SIZE MODAL ------------------- */}
       {isAddSizeOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <form onSubmit={(e) => void handleAddSize(e)} className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-6 text-xs text-white">
-            <h2 className="font-display text-2xl text-white">Add Size Option</h2>
+          <form onSubmit={(e) => void handleAddSize(e)} className={`w-full max-w-md rounded-3xl border p-6 text-xs shadow-2xl ${modalBg}`}>
+            <h2 className={`font-display text-2xl ${textHead}`}>Add Size Option</h2>
             <div className="mt-4 space-y-3">
               <div>
                 <label className="block font-bold">Size Label</label>
@@ -1180,7 +1198,7 @@ export function AdminDashboard() {
                   value={newSize.label}
                   onChange={(e) => setNewSize({ ...newSize, label: e.target.value })}
                   placeholder="e.g. XL or 42"
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 />
               </div>
               <div>
@@ -1188,7 +1206,7 @@ export function AdminDashboard() {
                 <select
                   value={newSize.category}
                   onChange={(e) => setNewSize({ ...newSize, category: e.target.value })}
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 outline-none focus:border-amber-400"
+                  className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 >
                   <option value="Apparel">Apparel</option>
                   <option value="Footwear">Footwear</option>
@@ -1197,7 +1215,11 @@ export function AdminDashboard() {
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={() => setIsAddSizeOpen(false)} className="rounded-xl border border-slate-800 px-4 py-2 font-bold text-slate-300">
+              <button
+                type="button"
+                onClick={() => setIsAddSizeOpen(false)}
+                className={`rounded-xl border px-4 py-2 font-bold ${isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100'}`}
+              >
                 Cancel
               </button>
               <button type="submit" className="rounded-xl bg-amber-500 px-4 py-2 font-bold text-slate-950 hover:bg-amber-400">
