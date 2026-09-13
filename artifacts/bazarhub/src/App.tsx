@@ -40,7 +40,6 @@ function Router() {
         <Route path="/orders" component={Orders} />
         <Route path="/account" component={Account} />
         <Route path="/seller" component={SellerSurface} />
-        <Route path="/admin" component={AdminSurface} />
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
@@ -61,6 +60,7 @@ function App() {
               <Switch>
                 <Route path="/sign-in/*?" component={SignIn} />
                 <Route path="/sign-up/*?" component={SignUp} />
+                <Route path="/admin/*?" component={AdminSurface} />
                 <Route component={() => <MarketShell><Router /></MarketShell>} />
               </Switch>
             </WouterRouter>

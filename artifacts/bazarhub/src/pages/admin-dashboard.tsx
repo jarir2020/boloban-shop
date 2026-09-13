@@ -11,7 +11,10 @@ import {
   Database,
   DollarSign,
   Edit3,
+  ExternalLink,
   Filter,
+  Globe,
+  LogOut,
   PlusCircle,
   RefreshCw,
   Search,
@@ -46,7 +49,7 @@ interface UserItem {
 }
 
 export function AdminDashboard() {
-  const { user, status } = useAuth();
+  const { user, status, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'users'>('overview');
 
   const ordersQuery = useListOrders();
@@ -287,9 +290,35 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#f8fafc] pb-16 pt-6">
-      <div className="mx-auto max-w-[1440px] px-4 md:px-8">
-        {/* Header Bar */}
+    <div className="min-h-[100dvh] bg-[#f8fafc] pb-16">
+      {/* Standalone Admin Top Navigation Bar */}
+      <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-900 text-slate-100 shadow-md">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3.5 md:px-8">
+          <div className="flex items-center gap-3">
+            <img src="/boloban-shop-logo.jpg" alt="BOLOBAN SHOP" className="h-9 w-9 rounded-lg object-cover" />
+            <div>
+              <span className="font-display text-lg tracking-tight text-white">BOLOBAN<span className="text-amber-400"> ADMIN</span></span>
+              <span className="ml-2.5 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-mono-brand uppercase text-amber-400">Control Center</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link href="/" target="_blank" className="hidden items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3.5 py-2 text-xs font-bold text-slate-200 transition-colors hover:border-amber-400 hover:text-white sm:inline-flex">
+              <Globe size={14} /> View Storefront <ExternalLink size={12} />
+            </Link>
+            <div className="hidden text-right text-xs md:block">
+              <strong className="block text-slate-100">{user.name || user.email}</strong>
+              <span className="text-[10px] font-bold text-amber-400 uppercase">Administrator</span>
+            </div>
+            <button onClick={() => void signOut()} className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600/90 px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-600">
+              <LogOut size={14} /> <span className="hidden sm:inline">Log out</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-[1440px] px-4 pt-6 md:px-8">
+        {/* Header Hero */}
         <div className="mb-6 flex flex-col justify-between gap-4 rounded-3xl bg-secondary p-6 text-secondary-foreground shadow-lg md:flex-row md:items-center md:p-8">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
@@ -869,3 +898,4 @@ export function AdminDashboard() {
     </div>
   );
 }
+
