@@ -127,7 +127,8 @@ export function AdminDashboard() {
   const [isAddSizeOpen, setIsAddSizeOpen] = useState(false);
   const [newSize, setNewSize] = useState({ label: '', category: 'Apparel' });
 
-  // Admin Profile State
+  // Admin Profile & Dropdown State
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -511,10 +512,13 @@ export function AdminDashboard() {
           isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white shadow-md'
         } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className={`flex h-16 items-center justify-between border-b px-6 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-          <div className="flex items-center gap-3">
+        <div className={`flex h-16 items-center justify-between border-b px-5 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+          <div className="flex items-center gap-2.5">
             <img src="/boloban-shop-logo.jpg" alt="BOLOBAN SHOP" className="h-8 w-8 rounded-lg object-cover" />
-            <span className="font-display text-lg tracking-tight">BOLOBAN <span className="text-amber-500">ADMIN</span></span>
+            <div>
+              <span className="block font-display text-base tracking-tight leading-none">BOLOBAN <span className="text-amber-500">ADMIN</span></span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500">Administrator</span>
+            </div>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className={`md:hidden ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
             <X size={20} />
@@ -605,17 +609,6 @@ export function AdminDashboard() {
           >
             <Users size={18} /> Platform Accounts
           </button>
-
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'profile'
-                ? 'bg-amber-500 text-slate-950 shadow'
-                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <User size={18} /> Admin Profile
-          </button>
         </div>
 
         <div className={`border-t p-4 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
@@ -655,17 +648,69 @@ export function AdminDashboard() {
               <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
             </button>
 
-            <div className="hidden text-right md:block">
-              <strong className="block">{user.name || user.email}</strong>
-              <span className="text-[10px] font-bold uppercase text-amber-500">Administrator</span>
-            </div>
+            {/* Admin Avatar Ring with Profile & Signout Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                className="flex items-center gap-2.5 rounded-2xl p-1 transition-colors hover:opacity-90 outline-none"
+              >
+                <img
+                  src={
+                    user.imageUrl ||
+                    `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(user.name || user.email || 'Admin')}&backgroundColor=f57224`
+                  }
+                  alt={user.name || 'Admin'}
+                  className="h-9 w-9 rounded-full object-cover ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-900 shadow-md"
+                />
+                <div className="hidden text-left md:block">
+                  <strong className="block leading-tight">{user.name || user.email}</strong>
+                  <span className="text-[10px] font-bold uppercase text-amber-500">Administrator</span>
+                </div>
+                <ChevronRight size={14} className={`hidden md:block transition-transform ${isProfileDropdownOpen ? 'rotate-90' : ''} ${textSub}`} />
+              </button>
 
-            <button
-              onClick={() => void signOut()}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600/90 px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-600"
-            >
-              <LogOut size={14} /> Sign out
-            </button>
+              {isProfileDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsProfileDropdownOpen(false)} />
+                  <div
+                    className={`absolute right-0 z-50 mt-2 w-56 rounded-2xl border p-2 shadow-2xl transition-all ${
+                      isDark ? 'border-slate-800 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-900'
+                    }`}
+                  >
+                    <div className="border-b px-3 py-2 text-xs mb-1 border-slate-800/20">
+                      <p className="font-bold truncate">{user.name || 'Admin'}</p>
+                      <p className={`text-[10px] truncate ${textSub}`}>{user.email}</p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab('profile');
+                        setIsProfileDropdownOpen(false);
+                      }}
+                      className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition-colors ${
+                        activeTab === 'profile'
+                          ? 'bg-amber-500 text-slate-950'
+                          : isDark ? 'text-slate-200 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <User size={16} className="text-amber-500" />
+                      My Profile
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false);
+                        void signOut();
+                      }}
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/10 transition-colors mt-1"
+                    >
+                      <LogOut size={16} />
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
