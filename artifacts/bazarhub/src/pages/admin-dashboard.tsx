@@ -23,6 +23,8 @@ import {
   Search,
   ShieldCheck,
   ShoppingBag,
+  Sun,
+  Moon,
   Trash2,
   Users,
   X
@@ -65,6 +67,19 @@ export function AdminDashboard() {
   const { user, status, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'categories' | 'colors' | 'sizes' | 'orders' | 'users'>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('boloban-admin-theme') as 'dark' | 'light') || 'dark';
+    }
+    return 'dark';
+  });
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('boloban-admin-theme', nextTheme);
+  };
 
   const ordersQuery = useListOrders();
   const productsQuery = useListProducts({ limit: 200 });
@@ -428,31 +443,42 @@ export function AdminDashboard() {
     );
   }
 
+  const isDark = theme === 'dark';
+  const cardBg = isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white shadow-sm';
+  const cardInnerBg = isDark ? 'border-slate-800 bg-slate-950' : 'border-slate-200 bg-slate-50';
+  const textSub = isDark ? 'text-slate-400' : 'text-slate-500';
+  const textHead = isDark ? 'text-white' : 'text-slate-900';
+  const tableHeaderBg = isDark ? 'border-slate-800 bg-slate-950/60 text-slate-400' : 'border-slate-200 bg-slate-100 text-slate-700';
+  const inputBg = isDark ? 'border-slate-800 bg-slate-950 text-white focus:border-amber-400' : 'border-slate-300 bg-white text-slate-900 focus:border-amber-500';
+  const modalBg = isDark ? 'border-slate-800 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-900 shadow-2xl';
+
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100">
+    <div className={`flex min-h-screen transition-colors ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-900'}`}>
       {/* ------------------- LEFT SIDEBAR ------------------- */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-800 bg-slate-900 transition-transform md:static md:translate-x-0 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r transition-transform md:static md:translate-x-0 ${
+          isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-200 bg-white shadow-md'
+        } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="flex h-16 items-center justify-between border-b border-slate-800 px-6">
+        <div className={`flex h-16 items-center justify-between border-b px-6 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
           <div className="flex items-center gap-3">
             <img src="/boloban-shop-logo.jpg" alt="BOLOBAN SHOP" className="h-8 w-8 rounded-lg object-cover" />
-            <span className="font-display text-lg tracking-tight">BOLOBAN <span className="text-amber-400">ADMIN</span></span>
+            <span className="font-display text-lg tracking-tight">BOLOBAN <span className="text-amber-500">ADMIN</span></span>
           </div>
-          <button onClick={() => setIsSidebarOpen(false)} className="md:hidden text-slate-400 hover:text-white">
+          <button onClick={() => setIsSidebarOpen(false)} className={`md:hidden ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-500 hover:text-slate-900'}`}>
             <X size={20} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-1.5 text-xs font-bold">
-          <div className="px-3 pb-2 text-[10px] uppercase tracking-wider text-slate-400">Main Control</div>
+          <div className={`px-3 pb-2 text-[10px] uppercase tracking-wider ${textSub}`}>Main Control</div>
 
           <button
             onClick={() => setActiveTab('overview')}
             className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'overview' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'overview'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <BarChart3 size={18} /> Dashboard Overview
@@ -461,91 +487,117 @@ export function AdminDashboard() {
           <button
             onClick={() => setActiveTab('products')}
             className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'products' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'products'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <span className="flex items-center gap-3"><Box size={18} /> Products & Images</span>
-            <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono-brand text-amber-400">{productsQuery.data?.length ?? 0}</span>
+            <span className={`rounded-md px-2 py-0.5 text-[10px] font-mono-brand ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-slate-900'}`}>{productsQuery.data?.length ?? 0}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('categories')}
             className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'categories' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'categories'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <span className="flex items-center gap-3"><FolderTree size={18} /> Categories CRUD</span>
-            <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono-brand text-amber-400">{categoriesQuery.data?.length ?? 0}</span>
+            <span className={`rounded-md px-2 py-0.5 text-[10px] font-mono-brand ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-slate-900'}`}>{categoriesQuery.data?.length ?? 0}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('colors')}
             className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'colors' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'colors'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <span className="flex items-center gap-3"><Palette size={18} /> Colors Variants</span>
-            <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono-brand text-amber-400">{colorsList.length}</span>
+            <span className={`rounded-md px-2 py-0.5 text-[10px] font-mono-brand ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-slate-900'}`}>{colorsList.length}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('sizes')}
             className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'sizes' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'sizes'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <span className="flex items-center gap-3"><Ruler size={18} /> Sizes Variants</span>
-            <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono-brand text-amber-400">{sizesList.length}</span>
+            <span className={`rounded-md px-2 py-0.5 text-[10px] font-mono-brand ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-slate-900'}`}>{sizesList.length}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('orders')}
             className={`flex w-full items-center justify-between rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'orders' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'orders'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <span className="flex items-center gap-3"><ShoppingBag size={18} /> Orders & Fulfillment</span>
-            <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[10px] font-mono-brand text-amber-400">{ordersQuery.data?.length ?? 0}</span>
+            <span className={`rounded-md px-2 py-0.5 text-[10px] font-mono-brand ${isDark ? 'bg-slate-800 text-amber-400' : 'bg-slate-200 text-slate-900'}`}>{ordersQuery.data?.length ?? 0}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('users')}
             className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-3 transition-colors ${
-              activeTab === 'users' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-300 hover:bg-slate-800'
+              activeTab === 'users'
+                ? 'bg-amber-500 text-slate-950 shadow'
+                : isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-700 hover:bg-slate-100'
             }`}
           >
             <Users size={18} /> Platform Accounts
           </button>
         </div>
 
-        <div className="border-t border-slate-800 p-4">
+        <div className={`border-t p-4 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
           <Link
             href="/"
             target="_blank"
-            className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-3 text-xs font-bold text-slate-300 transition-colors hover:border-amber-400 hover:text-white"
+            className={`flex items-center justify-between rounded-xl border p-3 text-xs font-bold transition-colors ${
+              isDark ? 'border-slate-800 bg-slate-950 text-slate-300 hover:border-amber-400 hover:text-white' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-amber-500 hover:text-slate-900'
+            }`}
           >
-            <span className="flex items-center gap-2"><Globe size={16} className="text-amber-400" /> View Storefront</span>
+            <span className="flex items-center gap-2"><Globe size={16} className="text-amber-500" /> View Storefront</span>
             <ExternalLink size={14} />
           </Link>
         </div>
       </aside>
 
       {/* ------------------- MAIN CONTENT AREA ------------------- */}
-      <div className="flex flex-1 flex-col overflow-hidden bg-slate-950">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Header Bar */}
-        <header className="flex h-16 items-center justify-between border-b border-slate-800 bg-slate-900/50 px-6 backdrop-blur">
+        <header className={`flex h-16 items-center justify-between border-b px-6 backdrop-blur ${isDark ? 'border-slate-800 bg-slate-900/50' : 'border-slate-200 bg-white/80'}`}>
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden text-slate-400 hover:text-white">
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className={`md:hidden ${isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}>
               <Menu size={22} />
             </button>
-            <h1 className="font-display text-lg tracking-tight uppercase text-slate-200">{activeTab} Section</h1>
+            <h1 className="font-display text-lg tracking-tight uppercase">{activeTab} Section</h1>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-bold">
+          <div className="flex items-center gap-3 text-xs font-bold">
+            <button
+              onClick={toggleTheme}
+              className={`flex items-center gap-1.5 rounded-xl border p-2 text-xs font-bold transition-colors ${
+                isDark ? 'border-slate-800 bg-slate-800 text-amber-400 hover:bg-slate-700' : 'border-slate-200 bg-slate-100 text-amber-600 hover:bg-slate-200'
+              }`}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+            </button>
+
             <div className="hidden text-right md:block">
-              <strong className="block text-slate-200">{user.name || user.email}</strong>
-              <span className="text-[10px] text-amber-400 uppercase">Administrator</span>
+              <strong className="block">{user.name || user.email}</strong>
+              <span className="text-[10px] font-bold uppercase text-amber-500">Administrator</span>
             </div>
+
             <button
               onClick={() => void signOut()}
               className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600/90 px-3.5 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-600"
@@ -561,47 +613,47 @@ export function AdminDashboard() {
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className={`rounded-2xl border p-5 ${cardBg}`}>
+                  <div className={`flex items-center justify-between ${textSub}`}>
                     <span className="text-xs font-bold uppercase tracking-wider">Total Revenue</span>
-                    <DollarSign size={20} className="text-emerald-400" />
+                    <DollarSign size={20} className="text-emerald-500" />
                   </div>
-                  <p className="mt-3 font-display text-3xl text-emerald-400">৳{(stats?.totalRevenue ?? 0).toLocaleString()}</p>
-                  <p className="mt-1 text-[11px] text-slate-400">Gross sales volume</p>
+                  <p className="mt-3 font-display text-3xl text-emerald-500">৳{(stats?.totalRevenue ?? 0).toLocaleString()}</p>
+                  <p className={`mt-1 text-[11px] ${textSub}`}>Gross sales volume</p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className={`rounded-2xl border p-5 ${cardBg}`}>
+                  <div className={`flex items-center justify-between ${textSub}`}>
                     <span className="text-xs font-bold uppercase tracking-wider">Total Orders</span>
-                    <ShoppingBag size={20} className="text-amber-400" />
+                    <ShoppingBag size={20} className="text-amber-500" />
                   </div>
-                  <p className="mt-3 font-display text-3xl text-amber-400">{ordersQuery.data?.length ?? 0}</p>
-                  <p className="mt-1 text-[11px] text-slate-400">Customer checkout orders</p>
+                  <p className="mt-3 font-display text-3xl text-amber-500">{ordersQuery.data?.length ?? 0}</p>
+                  <p className={`mt-1 text-[11px] ${textSub}`}>Customer checkout orders</p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className={`rounded-2xl border p-5 ${cardBg}`}>
+                  <div className={`flex items-center justify-between ${textSub}`}>
                     <span className="text-xs font-bold uppercase tracking-wider">Products Catalog</span>
-                    <Box size={20} className="text-blue-400" />
+                    <Box size={20} className="text-blue-500" />
                   </div>
-                  <p className="mt-3 font-display text-3xl text-blue-400">{productsQuery.data?.length ?? 0}</p>
-                  <p className="mt-1 text-[11px] text-slate-400">Active marketplace listings</p>
+                  <p className="mt-3 font-display text-3xl text-blue-500">{productsQuery.data?.length ?? 0}</p>
+                  <p className={`mt-1 text-[11px] ${textSub}`}>Active marketplace listings</p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className={`rounded-2xl border p-5 ${cardBg}`}>
+                  <div className={`flex items-center justify-between ${textSub}`}>
                     <span className="text-xs font-bold uppercase tracking-wider">Categories</span>
-                    <FolderTree size={20} className="text-purple-400" />
+                    <FolderTree size={20} className="text-purple-500" />
                   </div>
-                  <p className="mt-3 font-display text-3xl text-purple-400">{categoriesQuery.data?.length ?? 0}</p>
-                  <p className="mt-1 text-[11px] text-slate-400">Product categories</p>
+                  <p className="mt-3 font-display text-3xl text-purple-500">{categoriesQuery.data?.length ?? 0}</p>
+                  <p className={`mt-1 text-[11px] ${textSub}`}>Product categories</p>
                 </div>
               </div>
 
               {/* Quick Action Cards */}
               <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-                  <h3 className="font-display text-xl text-white">Inventory Quick Actions</h3>
+                <div className={`rounded-2xl border p-6 ${cardBg}`}>
+                  <h3 className={`font-display text-xl ${textHead}`}>Inventory Quick Actions</h3>
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <button
                       onClick={() => {
