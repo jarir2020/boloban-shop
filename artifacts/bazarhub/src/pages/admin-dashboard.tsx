@@ -232,43 +232,70 @@ export function AdminDashboard() {
     if (activeTab === 'users') void fetchUsers();
   }, [activeTab]);
 
-  // Image Upload Handlers
-  const handlePrimaryImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
-      toast({ title: 'File too large', description: 'Please select an image smaller than 10MB.', variant: 'destructive' });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setProductForm(prev => ({ ...prev, image: reader.result as string }));
-      }
-    };
-    reader.readAsDataURL(file);
+  // Image Upload Handlers with Compression to prevent 413 Content Too Large errors
+  const compressImageFile = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.82): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            if (width / height > maxWidth / maxHeight) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          } else {
+            resolve(e.target?.result as string);
+          }
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
-  const handleAdditionalImagesFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePrimaryImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const base64 = await compressImageFile(file);
+      setProductForm(prev => ({ ...prev, image: base64 }));
+    } catch {
+      toast({ title: 'Upload Error', description: 'Failed to process image file.', variant: 'destructive' });
+    }
+  };
+
+  const handleAdditionalImagesFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files);
-    const readPromises = fileArray.map(file => {
-      return new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-    });
-
-    Promise.all(readPromises).then(newImages => {
+    try {
+      const compressedImages = await Promise.all(fileArray.map(file => compressImageFile(file)));
       setProductForm(prev => {
         const existing = prev.additionalImages ? prev.additionalImages.split('\n').filter(Boolean) : [];
-        const combined = [...existing, ...newImages];
+        const combined = [...existing, ...compressedImages];
         return { ...prev, additionalImages: combined.join('\n') };
       });
-    });
+    } catch {
+      toast({ title: 'Upload Error', description: 'Failed to process image files.', variant: 'destructive' });
+    }
   };
 
   const removeAdditionalImage = (indexToRemove: number) => {
