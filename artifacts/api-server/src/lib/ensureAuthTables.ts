@@ -76,6 +76,16 @@ export async function ensureAuthTables(): Promise<void> {
   } else {
     await db.execute(sql.raw(CREATE_USERS_MYSQL));
     await db.execute(sql.raw(CREATE_SESSIONS_MYSQL));
+    try {
+      await db.execute(sql.raw("ALTER TABLE marketplace_products ADD COLUMN color TEXT"));
+    } catch {
+      // Column may already exist
+    }
+    try {
+      await db.execute(sql.raw("ALTER TABLE marketplace_products ADD COLUMN size TEXT"));
+    } catch {
+      // Column may already exist
+    }
   }
   ensured = true;
 }
