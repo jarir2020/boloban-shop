@@ -233,7 +233,7 @@ export function AdminDashboard() {
   }, [activeTab]);
 
   // Image Upload Handlers with Compression to prevent 413 Content Too Large errors
-  const compressImageFile = (file: File, maxWidth = 1200, maxHeight = 1200, quality = 0.82): Promise<string> => {
+  const compressImageFile = (file: File, maxWidth = 800, maxHeight = 800, quality = 0.70): Promise<string> => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (e) => {

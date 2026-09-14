@@ -1,3 +1,6 @@
+# Increase body size limit for file/image payloads
+LimitRequestBody 52428800
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
