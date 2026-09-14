@@ -34,7 +34,7 @@ export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
  * @summary Search and filter products
  */
 export const listProductsQueryLimitDefault = 12;
-export const listProductsQueryLimitMax = 50;
+export const listProductsQueryLimitMax = 500;
 
 
 
