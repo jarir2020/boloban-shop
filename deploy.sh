@@ -168,7 +168,9 @@ JSON
     cp "$SCRIPT_DIR/artifacts/api-server/.env.production.example" \
        "$API_STAGE/$API_DIR/.env"
   fi
-  echo "${GREEN}  ✅ staged $(du -sh "$API_STAGE/$API_DIR" | cut -f1) at $API_STAGE/$API_DIR${NC}"
+  mkdir -p "$API_STAGE/$API_DIR/tmp"
+  touch "$API_STAGE/$API_DIR/tmp/restart.txt"
+  echo "${GREEN}  ✅ staged $(du -sh "$API_STAGE/$API_DIR" | cut -f1) at $API_STAGE/$API_DIR (with Passenger restart trigger)${NC}"
   echo ""
 fi
 
