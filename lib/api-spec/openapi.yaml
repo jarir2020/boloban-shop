@@ -197,6 +197,8 @@ components:
         badge: { type: string }
         stock: { type: number }
         description: { type: string }
+        color: { type: string }
+        size: { type: string }
     Review:
       type: object
       required: [id, author, rating, text, date]

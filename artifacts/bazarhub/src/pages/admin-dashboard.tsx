@@ -113,6 +113,8 @@ export function AdminDashboard() {
     seller: 'BOLOBAN Direct',
     badge: 'Popular',
     description: '',
+    color: '',
+    size: '',
     image: '',
     additionalImages: '',
   });
@@ -325,17 +327,25 @@ export function AdminDashboard() {
         ? Math.round(priceVal / (1 - discountVal / 100))
         : Number(productForm.originalPrice || priceVal);
 
+      const valOrNA = (val: string | number | undefined | null, fallback = 'N/A'): string => {
+        if (val === undefined || val === null) return fallback;
+        const str = String(val).trim();
+        return str === '' ? fallback : str;
+      };
+
       const payload = {
-        name: productForm.name,
-        category: productForm.category,
+        name: valOrNA(productForm.name),
+        category: valOrNA(productForm.category),
         price: priceVal,
         originalPrice: calculatedOriginalPrice,
         discount: discountVal,
-        stock: Number(productForm.stock),
-        seller: productForm.seller,
-        badge: productForm.badge,
-        description: productForm.description,
-        image: productForm.image,
+        stock: Number(productForm.stock || 0),
+        seller: valOrNA(productForm.seller, 'BOLOBAN Direct'),
+        badge: valOrNA(productForm.badge, 'N/A'),
+        description: valOrNA(productForm.description, 'N/A'),
+        color: valOrNA(productForm.color, 'N/A'),
+        size: valOrNA(productForm.size, 'N/A'),
+        image: valOrNA(productForm.image, 'N/A'),
       };
 
       const url = editingProductId ? `/api/products/${editingProductId}` : '/api/products';
@@ -389,15 +399,17 @@ export function AdminDashboard() {
       : '0';
 
     setProductForm({
-      name: p.name,
-      category: p.category,
-      price: String(p.price),
-      originalPrice: String(p.originalPrice || p.price),
+      name: p.name || '',
+      category: p.category || 'electronics',
+      price: String(p.price || ''),
+      originalPrice: String(p.originalPrice || p.price || ''),
       discountRate: computedDiscount,
-      stock: String(p.stock),
+      stock: String(p.stock || '0'),
       seller: p.seller || 'BOLOBAN Direct',
       badge: p.badge || '',
       description: p.description || '',
+      color: p.color || '',
+      size: p.size || '',
       image: p.image || '',
       additionalImages: '',
     });
@@ -860,7 +872,7 @@ export function AdminDashboard() {
                     <button
                       onClick={() => {
                         setEditingProductId(null);
-                        setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', discountRate: '0', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
+                        setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', discountRate: '0', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', color: '', size: '', image: '', additionalImages: '' });
                         setIsAddProductOpen(true);
                       }}
                       className="flex items-center gap-2 rounded-xl bg-amber-500 p-3.5 text-xs font-bold text-slate-950 transition-transform hover:scale-105"
@@ -914,7 +926,7 @@ export function AdminDashboard() {
               isDark={isDark}
               onAddClick={() => {
                 setEditingProductId(null);
-                setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', discountRate: '0', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
+                setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', discountRate: '0', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', color: '', size: '', image: '', additionalImages: '' });
                 setIsAddProductOpen(true);
               }}
               addLabel="Add Product"
@@ -1438,6 +1450,29 @@ export function AdminDashboard() {
                     value={productForm.badge}
                     onChange={(e) => setProductForm({ ...productForm, badge: e.target.value })}
                     placeholder="e.g. Popular or Hot"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold">Color Variant</label>
+                  <input
+                    type="text"
+                    value={productForm.color}
+                    onChange={(e) => setProductForm({ ...productForm, color: e.target.value })}
+                    placeholder="e.g. Black, Red (Leave blank for N/A)"
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold">Size Option</label>
+                  <input
+                    type="text"
+                    value={productForm.size}
+                    onChange={(e) => setProductForm({ ...productForm, size: e.target.value })}
+                    placeholder="e.g. S, M, L, XL, 42 (Leave blank for N/A)"
                     className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                   />
                 </div>

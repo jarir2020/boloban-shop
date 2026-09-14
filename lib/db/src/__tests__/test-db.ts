@@ -205,7 +205,9 @@ function createSchema(raw: Database.Database) {
       seller TEXT NOT NULL,
       badge TEXT NOT NULL DEFAULT '',
       stock INTEGER NOT NULL DEFAULT 0,
-      description TEXT NOT NULL DEFAULT ''
+      description TEXT NOT NULL DEFAULT '',
+      color TEXT NOT NULL DEFAULT 'N/A',
+      size TEXT NOT NULL DEFAULT 'N/A'
     );
     CREATE TABLE marketplace_reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -268,6 +270,8 @@ function insertSeed(db: ReturnType<typeof drizzle<typeof schema>>) {
       badge: product.badge,
       stock: product.stock,
       description: product.description,
+      color: "N/A",
+      size: "N/A",
     })),
   ).run();
   db.insert(reviewsTable).values(SEED_REVIEWS).run();

@@ -538,26 +538,34 @@ router.patch("/orders/:id/status", async (req, res) => {
   res.json({ success: true, id: orderId, status });
 });
 
+const valOrNA = (val: unknown, fallback = "N/A"): string => {
+  if (val === undefined || val === null) return fallback;
+  const str = String(val).trim();
+  return str === "" ? fallback : str;
+};
+
 router.post("/products", async (req, res) => {
   await ensureSeeded();
-  const { name, category, price, originalPrice, discount, image, seller, badge, stock, description } = req.body;
+  const { name, category, price, originalPrice, discount, image, seller, badge, stock, description, color, size } = req.body;
   if (!name || !category || price === undefined) {
     res.status(400).json({ error: "Name, category, and price are required" });
     return;
   }
   const inserted = await db.insert(productsTable).values({
-    name: String(name),
-    category: String(category),
-    price: String(price),
-    originalPrice: String(originalPrice ?? price),
+    name: valOrNA(name),
+    category: valOrNA(category),
+    price: price !== undefined && String(price).trim() !== "" ? String(price) : "0",
+    originalPrice: originalPrice !== undefined && String(originalPrice).trim() !== "" ? String(originalPrice) : (price !== undefined && String(price).trim() !== "" ? String(price) : "0"),
     discount: Number(discount ?? 0),
     rating: "4.5",
     reviews: 0,
-    image: String(image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=85"),
-    seller: String(seller || "BOLOBAN Direct"),
-    badge: String(badge || ""),
-    stock: Number(stock ?? 25),
-    description: String(description || ""),
+    image: valOrNA(image, "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=85"),
+    seller: valOrNA(seller, "BOLOBAN Direct"),
+    badge: valOrNA(badge, "N/A"),
+    stock: Number(stock ?? 0),
+    description: valOrNA(description, "N/A"),
+    color: valOrNA(color, "N/A"),
+    size: valOrNA(size, "N/A"),
   });
   const newId = Number(inserted[0]?.insertId ?? 1);
   const [newProduct] = await db.select().from(productsTable).where(eq(productsTable.id, newId));
@@ -577,12 +585,18 @@ router.patch("/products/:id", async (req, res) => {
     return;
   }
   const updates: Record<string, unknown> = {};
-  if (req.body.price !== undefined) updates.price = String(req.body.price);
-  if (req.body.originalPrice !== undefined) updates.originalPrice = String(req.body.originalPrice);
-  if (req.body.discount !== undefined) updates.discount = Number(req.body.discount);
-  if (req.body.stock !== undefined) updates.stock = Number(req.body.stock);
-  if (req.body.badge !== undefined) updates.badge = String(req.body.badge);
-  if (req.body.name !== undefined) updates.name = String(req.body.name);
+  if (req.body.name !== undefined) updates.name = valOrNA(req.body.name);
+  if (req.body.category !== undefined) updates.category = valOrNA(req.body.category);
+  if (req.body.price !== undefined) updates.price = String(req.body.price).trim() === "" ? "0" : String(req.body.price);
+  if (req.body.originalPrice !== undefined) updates.originalPrice = String(req.body.originalPrice).trim() === "" ? "0" : String(req.body.originalPrice);
+  if (req.body.discount !== undefined) updates.discount = Number(req.body.discount ?? 0);
+  if (req.body.stock !== undefined) updates.stock = Number(req.body.stock ?? 0);
+  if (req.body.seller !== undefined) updates.seller = valOrNA(req.body.seller, "BOLOBAN Direct");
+  if (req.body.badge !== undefined) updates.badge = valOrNA(req.body.badge, "N/A");
+  if (req.body.description !== undefined) updates.description = valOrNA(req.body.description, "N/A");
+  if (req.body.image !== undefined) updates.image = valOrNA(req.body.image, "N/A");
+  if (req.body.color !== undefined) updates.color = valOrNA(req.body.color, "N/A");
+  if (req.body.size !== undefined) updates.size = valOrNA(req.body.size, "N/A");
 
   if (Object.keys(updates).length > 0) {
     await db.update(productsTable).set(updates).where(eq(productsTable.id, productId));

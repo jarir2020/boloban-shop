@@ -58,7 +58,9 @@ export const ListProductsResponseItem = zod.object({
   "seller": zod.string(),
   "badge": zod.string(),
   "stock": zod.number(),
-  "description": zod.string().optional()
+  "description": zod.string().optional(),
+  "color": zod.string().optional(),
+  "size": zod.string().optional()
 })
 export const ListProductsResponse = zod.array(ListProductsResponseItem)
 

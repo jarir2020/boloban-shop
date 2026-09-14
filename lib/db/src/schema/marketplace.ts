@@ -32,6 +32,8 @@ export const productsTable = mysqlTable("marketplace_products", {
   badge: text("badge").notNull().default(""),
   stock: int("stock").notNull().default(0),
   description: text("description").notNull().default(""),
+  color: text("color").notNull().default("N/A"),
+  size: text("size").notNull().default("N/A"),
 });
 
 export const reviewsTable = mysqlTable("marketplace_reviews", {
