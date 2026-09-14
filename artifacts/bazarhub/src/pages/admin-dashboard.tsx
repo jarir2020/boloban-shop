@@ -1311,12 +1311,14 @@ export function AdminDashboard() {
 
       {/* ------------------- ADD / EDIT PRODUCT MODAL (WITH MULTI-IMAGES) ------------------- */}
       {isAddProductOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <form onSubmit={(e) => void handleSaveProduct(e)} className={`w-full max-w-xl rounded-3xl border p-6 shadow-2xl md:p-8 ${modalBg}`}>
-            <h2 className={`font-display text-2xl ${textHead}`}>{editingProductId ? 'Edit Product' : 'Create Product Listing'}</h2>
-            <p className={`mt-1 text-xs ${textSub}`}>Fill in product specifications and upload image files</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <form onSubmit={(e) => void handleSaveProduct(e)} className={`w-full max-w-xl max-h-[90vh] flex flex-col rounded-3xl border p-6 shadow-2xl md:p-8 ${modalBg}`}>
+            <div className="shrink-0 mb-4">
+              <h2 className={`font-display text-2xl ${textHead}`}>{editingProductId ? 'Edit Product' : 'Create Product Listing'}</h2>
+              <p className={`mt-1 text-xs ${textSub}`}>Fill in product specifications and upload image files</p>
+            </div>
 
-            <div className={`mt-6 space-y-3.5 text-xs ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+            <div className={`space-y-3.5 text-xs flex-1 overflow-y-auto pr-2 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
               <div>
                 <label className="block font-bold">Product Name</label>
                 <input
@@ -1335,21 +1337,33 @@ export function AdminDashboard() {
                   onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
                   className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
                 >
-                  {(categoriesQuery.data ?? []).map((cat: any) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
+                  {(categoriesQuery.data && categoriesQuery.data.length > 0) ? (
+                    categoriesQuery.data.map((cat: any) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="electronics">Electronics</option>
+                      <option value="fashion">Fashion</option>
+                      <option value="home">Home & Living</option>
+                      <option value="beauty">Beauty & Care</option>
+                      <option value="fresh-market">Fresh Market</option>
+                    </>
+                  )}
                 </select>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="block font-bold">Selling Price (৳)</label>
                   <input
                     type="number"
                     required
+                    min="0"
+                    step="0.01"
                     value={productForm.price}
                     onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
-                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 font-mono-brand outline-none ${inputBg}`}
                   />
                 </div>
                 <div>
@@ -1361,17 +1375,19 @@ export function AdminDashboard() {
                     value={productForm.discountRate}
                     onChange={(e) => setProductForm({ ...productForm, discountRate: e.target.value })}
                     placeholder="e.g. 15"
-                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 font-mono-brand outline-none ${inputBg}`}
                   />
                 </div>
                 <div>
                   <label className="block font-bold">Original Price (৳)</label>
                   <input
                     type="number"
+                    min="0"
+                    step="0.01"
                     value={productForm.originalPrice}
                     onChange={(e) => setProductForm({ ...productForm, originalPrice: e.target.value })}
                     placeholder="Auto-calculated"
-                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 font-mono-brand outline-none ${inputBg}`}
                   />
                 </div>
               </div>
@@ -1381,9 +1397,11 @@ export function AdminDashboard() {
                   <label className="block font-bold">Stock Count</label>
                   <input
                     type="number"
+                    required
+                    min="0"
                     value={productForm.stock}
                     onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
-                    className={`mt-1 h-10 w-full rounded-xl border px-3 outline-none ${inputBg}`}
+                    className={`mt-1 h-10 w-full rounded-xl border px-3 font-mono-brand outline-none ${inputBg}`}
                   />
                 </div>
                 <div>
@@ -1493,7 +1511,7 @@ export function AdminDashboard() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mt-4 flex justify-end gap-2 shrink-0 pt-4 border-t border-slate-200 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setIsAddProductOpen(false)}
