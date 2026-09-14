@@ -1,3 +1,5 @@
+import { Link } from 'wouter';
+import { BarChart3, ChevronRight, CircleCheck, Package, Store, Users, WalletCards } from 'lucide-react';
 import { AdminDashboard } from '@/pages/admin-dashboard';
 
 export function SellerSurface() {

@@ -26,6 +26,7 @@ import {
   Sun,
   Moon,
   Trash2,
+  Upload,
   User,
   Users,
   X
@@ -64,7 +65,7 @@ interface SizeItem {
 }
 
 export function AdminDashboard() {
-  const { user, status, signOut, refreshUser } = useAuth();
+  const { user, status, signOut, refresh: refreshUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'categories' | 'colors' | 'sizes' | 'orders' | 'users' | 'profile'>('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -112,8 +113,8 @@ export function AdminDashboard() {
     seller: 'BOLOBAN Direct',
     badge: 'Popular',
     description: '',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=85',
-    additionalImages: '', // newline separated image URLs
+    image: '',
+    additionalImages: '',
   });
   const [submittingProduct, setSubmittingProduct] = useState(false);
 
@@ -231,11 +232,62 @@ export function AdminDashboard() {
     if (activeTab === 'users') void fetchUsers();
   }, [activeTab]);
 
+  // Image Upload Handlers
+  const handlePrimaryImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Please select an image smaller than 10MB.', variant: 'destructive' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setProductForm(prev => ({ ...prev, image: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAdditionalImagesFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    const readPromises = fileArray.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(readPromises).then(newImages => {
+      setProductForm(prev => {
+        const existing = prev.additionalImages ? prev.additionalImages.split('\n').filter(Boolean) : [];
+        const combined = [...existing, ...newImages];
+        return { ...prev, additionalImages: combined.join('\n') };
+      });
+    });
+  };
+
+  const removeAdditionalImage = (indexToRemove: number) => {
+    setProductForm(prev => {
+      const existing = prev.additionalImages ? prev.additionalImages.split('\n').filter(Boolean) : [];
+      const updated = existing.filter((_, i) => i !== indexToRemove);
+      return { ...prev, additionalImages: updated.join('\n') };
+    });
+  };
+
   // Product CRUD
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productForm.name || !productForm.price) {
       toast({ title: 'Validation Error', description: 'Name and price are required.', variant: 'destructive' });
+      return;
+    }
+    if (!productForm.image) {
+      toast({ title: 'Validation Error', description: 'Please upload a primary product image file.', variant: 'destructive' });
       return;
     }
     setSubmittingProduct(true);
@@ -781,7 +833,7 @@ export function AdminDashboard() {
                     <button
                       onClick={() => {
                         setEditingProductId(null);
-                        setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
+                        setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', discountRate: '0', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
                         setIsAddProductOpen(true);
                       }}
                       className="flex items-center gap-2 rounded-xl bg-amber-500 p-3.5 text-xs font-bold text-slate-950 transition-transform hover:scale-105"
@@ -835,7 +887,7 @@ export function AdminDashboard() {
               isDark={isDark}
               onAddClick={() => {
                 setEditingProductId(null);
-                setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
+                setProductForm({ name: '', category: 'electronics', price: '', originalPrice: '', discountRate: '0', stock: '25', seller: 'BOLOBAN Direct', badge: 'Popular', description: '', image: '', additionalImages: '' });
                 setIsAddProductOpen(true);
               }}
               addLabel="Add Product"
@@ -1262,7 +1314,7 @@ export function AdminDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
           <form onSubmit={(e) => void handleSaveProduct(e)} className={`w-full max-w-xl rounded-3xl border p-6 shadow-2xl md:p-8 ${modalBg}`}>
             <h2 className={`font-display text-2xl ${textHead}`}>{editingProductId ? 'Edit Product' : 'Create Product Listing'}</h2>
-            <p className={`mt-1 text-xs ${textSub}`}>Fill in product specifications and image URLs</p>
+            <p className={`mt-1 text-xs ${textSub}`}>Fill in product specifications and upload image files</p>
 
             <div className={`mt-6 space-y-3.5 text-xs ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
               <div>
@@ -1358,26 +1410,86 @@ export function AdminDashboard() {
               </div>
 
               <div>
-                <label className="block font-bold">Primary Image URL</label>
-                <input
-                  type="url"
-                  required
-                  value={productForm.image}
-                  onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className={`mt-1 h-10 w-full rounded-xl border px-3 font-mono-brand text-[11px] outline-none ${inputBg}`}
-                />
+                <label className="block font-bold mb-1">Product Image File</label>
+                <div className={`mt-1 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition-colors ${isDark ? 'border-slate-800 bg-slate-900/50 hover:border-amber-500/50' : 'border-slate-300 bg-slate-50 hover:border-amber-500/50'}`}>
+                  {productForm.image ? (
+                    <div className="relative group w-full flex flex-col items-center">
+                      <div className="relative h-40 w-40 overflow-hidden rounded-xl border border-slate-200 shadow-sm dark:border-slate-700">
+                        <img src={productForm.image} alt="Primary product preview" className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setProductForm(prev => ({ ...prev, image: '' }))}
+                          className="absolute top-2 right-2 rounded-full bg-red-600 p-1 text-white shadow-md hover:bg-red-700"
+                          title="Remove image"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                      <label className="mt-3 inline-flex cursor-pointer items-center gap-1.5 rounded-xl bg-amber-500 px-3.5 py-1.5 text-xs font-bold text-slate-950 hover:bg-amber-400">
+                        <Upload size={14} />
+                        Upload Different Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePrimaryImageFile}
+                          className="hidden"
+                          data-testid="input-product-image-file"
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer flex-col items-center py-4 w-full">
+                      <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-500">
+                        <Upload size={24} />
+                      </div>
+                      <span className="text-sm font-bold">Click to upload product image file</span>
+                      <span className={`mt-1 text-xs ${textSub}`}>Supports PNG, JPG, WEBP, GIF, SVG up to 10MB</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePrimaryImageFile}
+                        className="hidden"
+                        data-testid="input-product-image-file"
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
 
               <div>
-                <label className="block font-bold">Additional Image URLs (One URL per line)</label>
-                <textarea
-                  rows={2}
-                  value={productForm.additionalImages}
-                  onChange={(e) => setProductForm({ ...productForm, additionalImages: e.target.value })}
-                  placeholder="https://image2.jpg&#10;https://image3.jpg"
-                  className={`mt-1 w-full rounded-xl border p-3 font-mono-brand text-[11px] outline-none ${inputBg}`}
-                />
+                <label className="block font-bold mb-1">Additional Image Files</label>
+                <div className="mt-1 space-y-3">
+                  {productForm.additionalImages ? (
+                    <div className="flex flex-wrap gap-3">
+                      {productForm.additionalImages.split('\n').filter(Boolean).map((imgUrl, idx) => (
+                        <div key={idx} className="relative h-20 w-20 overflow-hidden rounded-xl border border-slate-200 shadow-sm dark:border-slate-700">
+                          <img src={imgUrl} alt={`Additional preview ${idx + 1}`} className="h-full w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removeAdditionalImage(idx)}
+                            className="absolute top-1 right-1 rounded-full bg-red-600 p-0.5 text-white shadow-md hover:bg-red-700"
+                            title="Remove additional image"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <label className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed p-3 text-xs font-bold transition-colors ${isDark ? 'border-slate-800 bg-slate-900/30 text-slate-300 hover:border-amber-500' : 'border-slate-300 bg-slate-50 text-slate-700 hover:border-amber-500'}`}>
+                    <Upload size={16} className="text-amber-500" />
+                    Upload Additional Images
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleAdditionalImagesFiles}
+                      className="hidden"
+                      data-testid="input-additional-images-file"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
